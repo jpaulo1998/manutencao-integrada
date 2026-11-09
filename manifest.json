@@ -1,0 +1,19 @@
+{
+  "name": "Manutenção Integrada",
+  "short_name": "Manutenção Integrada",
+  "description": "Sistema integrado de lubrificação e inspeção",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0d2b4e",
+  "theme_color": "#2176c7",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
