@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="manifest" href="./manifest.json">
+  <link rel="icon" href="./icon.svg" type="image/svg+xml">
+
+  <meta name="theme-color" content="#2176c7">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Manutenção Integrada">
+
+  <title>Manutenção Integrada — Inspeção</title>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #0d2b4e, #1a4f8a);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      gap: 24px;
+    }
+
+    .header {
+      width: 100%;
+      max-width: 900px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .btn-voltar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #fff;
+      text-decoration: none;
+      font-size: 14px;
+      background: rgba(255, 255, 255, 0.15);
+      padding: 8px 16px;
+      border-radius: 8px;
+      transition: background 0.2s;
+    }
+
+    .btn-voltar:hover {
+      background: rgba(255, 255, 255, 0.28);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #fff;
+      font-size: 22px;
+      font-weight: 700;
+      text-align: right;
+    }
+
+    .logo i {
+      color: #f0c040;
+    }
+
+    .box {
+      width: 100%;
+      max-width: 900px;
+      background: #fff;
+      border-radius: 16px;
+      padding: 36px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .box h1 {
+      font-size: 22px;
+      color: #0d2b4e;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .sub {
+      color: #555;
+      font-size: 14px;
+      line-height: 1.6;
+      margin-bottom: 28px;
+    }
+
+    .grupo {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 22px;
+    }
+
+    .grupo label {
+      color: #0d2b4e;
+      font-size: 14px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .grupo select,
+    .grupo textarea {
+      width: 100%;
+      border: 2px solid #d0dce8;
+      border-radius: 10px;
+      padding: 12px 14px;
+      color: #0d2b4e;
+      background: #f0f4f8;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .grupo select:focus,
+    .grupo textarea:focus {
+      border-color: #2176c7;
+    }
+
+    .grupo textarea {
+      min-height: 110px;
+      resize: vertical;
+    }
+
+    .secao-titulo {
+      color: #0d2b4e;
+      font-size: 17px;
+      margin: 28px 0 14px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #f0f4f8;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .item-inspecao {
+      display: grid;
+      grid-template-columns: 1fr 220px;
+      align-items: center;
+      gap: 16px;
+      padding: 14px 0;
+      border-bottom: 1px solid #edf1f5;
+    }
+
+    .item-inspecao:last-child {
+      border-bottom: none;
+    }
+
+    .item-nome {
+      color: #333;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .item-nome i {
+      color: #2176c7;
+      width: 18px;
+      text-align: center;
+    }
+
+    .item-inspecao select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 2px solid #d0dce8;
+      border-radius: 8px;
+      background: #f0f4f8;
+      color: #0d2b4e;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .item-inspecao select:focus {
+      border-color: #2176c7;
+    }
+
+    .acoes {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 24px;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 8px;
+      padding: 12px 20px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background 0.2s;
+    }
+
+    .btn-salvar {
+      color: #fff;
+      background: #2176c7;
+    }
+
+    .btn-salvar:hover {
+      background: #1a5fa3;
+    }
+
+    .btn-limpar {
+      color: #0d2b4e;
+      background: #e5edf5;
+    }
+
+    .btn-limpar:hover {
+      background: #d5e1ed;
+    }
+
+    .mensagem {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 14px;
+      margin-top: 18px;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    .mensagem.sucesso {
+      color: #1e8449;
+      background: #eafaf1;
+      border: 1px solid #a9dfbf;
+    }
+
+    .mensagem.erro {
+      color: #a93226;
+      background: #fcebea;
+      border: 1px solid #f5b7b1;
+    }
+
+    .sem-registros {
+      display: none;
+      padding: 14px;
+      border-radius: 10px;
+      background: #fff7e6;
+      border: 1px solid #ffd591;
+      color: #9a6b00;
+      font-size: 14px;
+      margin-bottom: 18px;
+    }
+
+    footer {
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 13px;
+      text-align: center;
+      padding-bottom: 10px;
+    }
+
+    @media (max-width: 620px) {
+      .box {
+        padding: 24px 16px;
+      }
+
+      .logo {
+        font-size: 16px;
+      }
+
+      .item-inspecao {
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+
+      .acoes .btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <a href="index.html" class="btn-voltar">
+      <i class="fa-solid fa-arrow-left"></i>
+      Voltar
+    </a>
+
+    <div class="logo">
+      <i class="fa-solid fa-screwdriver-wrench"></i>
+      <span>Manutenção Integrada</span>
+    </div>
+  </header>
+
+  <main class="box">
+    <h1>
+      <i class="fa-solid fa-clipboard-check"></i>
+      Inspeção
+    </h1>
+
+    <p class="sub">
+      Selecione o equipamento, preencha o status de cada item e registre as observações da inspeção.
+    </p>
+
+    <div id="sem-registros" class="sem-registros">
+      Nenhum equipamento cadastrado. Cadastre equipamentos no painel administrativo para realizar inspeções.
+    </div>
+
+    <div class="grupo">
+      <label for="sel-equipamento">
+        <i class="fa-solid fa-gears"></i>
+        Selecionar equipamento
+      </label>
+      <select id="sel-equipamento">
+        <option value="">— Selecione o Equipamento —</option>
+      </select>
+    </div>
+
+    <h2 class="secao-titulo">
+      <i class="fa-solid fa-list-check"></i>
+      Lista de itens de inspeção
+    </h2>
+
+    <section id="lista-inspecao"></section>
+
+    <div class="grupo" style="margin-top: 24px;">
+      <label for="observacoes">
+        <i class="fa-solid fa-comment"></i>
+        Observações
+      </label>
+      <textarea
+        id="observacoes"
+        placeholder="Digite aqui as observações encontradas durante a inspeção..."
+      ></textarea>
+    </div>
+
+    <div class="acoes">
+      <button type="button" class="btn btn-salvar" onclick="salvarInspecao()">
+        <i class="fa-solid fa-floppy-disk"></i>
+        Salvar inspeção
+      </button>
+
+      <button type="button" class="btn btn-limpar" onclick="limparFormulario()">
+        <i class="fa-solid fa-eraser"></i>
+        Limpar
+      </button>
+    </div>
+
+    <div id="mensagem-sucesso" class="mensagem sucesso">
+      <i class="fa-solid fa-circle-check"></i>
+      Inspeção salva com sucesso!
+    </div>
+
+    <div id="mensagem-erro" class="mensagem erro">
+      <i class="fa-solid fa-circle-exclamation"></i>
+      Selecione um equipamento e preencha todos os status.
+    </div>
+  </main>
+
+  <footer>
+    &copy; 2026 Manutenção Integrada — Todos os direitos reservados
+  </footer>
+
+  <script>
+    const ITENS_INSPECAO = [
+      { id: 'nivel-lubrificante', nome: 'Nível do lubrificante', icone: 'fa-droplet' },
+      { id: 'vazamentos', nome: 'Existência de vazamentos', icone: 'fa-triangle-exclamation' },
+      { id: 'mangueiras', nome: 'Estado das mangueiras', icone: 'fa-grip-lines' },
+      { id: 'conexoes', nome: 'Estado das conexões', icone: 'fa-link' },
+      { id: 'rudos', nome: 'Ruídos anormais', icone: 'fa-volume-high' },
+      { id: 'vibracoes', nome: 'Vibrações anormais', icone: 'fa-wave-square' },
+      { id: 'temperatura', nome: 'Temperatura de operação', icone: 'fa-temperature-half' },
+      { id: 'condicao-geral', nome: 'Condição geral do equipamento', icone: 'fa-gear' }
+    ];
+
+    function getDados() {
+      const dados = localStorage.getItem('lubeasy_dados');
+
+      if (!dados) return [];
+
+      try {
+        const resultado = JSON.parse(dados);
+        return Array.isArray(resultado) ? resultado : [];
+      } catch (erro) {
+        console.error('Erro ao carregar equipamentos:', erro);
+        return [];
+      }
+    }
+
+    function getInspecoes() {
+      const inspecoes = localStorage.getItem('lubeasy_inspecoes');
+
+      if (!inspecoes) return [];
+
+      try {
+        const resultado = JSON.parse(inspecoes);
+        return Array.isArray(resultado) ? resultado : [];
+      } catch (erro) {
+        console.error('Erro ao carregar inspeções:', erro);
+        return [];
+      }
+    }
+
+    function gerarId() {
+      return '_' + Math.random().toString(36).substring(2, 11);
+    }
+
+    function mostrarMensagem(tipo) {
+      document.getElementById('mensagem-sucesso').style.display = tipo === 'sucesso' ? 'flex' : 'none';
+      document.getElementById('mensagem-erro').style.display = tipo === 'erro' ? 'flex' : 'none';
+    }
+
+    function limparMensagens() {
+      document.getElementById('mensagem-sucesso').style.display = 'none';
+      document.getElementById('mensagem-erro').style.display = 'none';
+    }
+
+    function carregarEquipamentos() {
+      const seletor = document.getElementById('sel-equipamento');
+      const semRegistros = document.getElementById('sem-registros');
+      const dados = getDados();
+
+      const equipamentos = [
+        ...new Set(
+          dados
+            .map(function (dado) {
+              return dado.equipamento;
+            })
+            .filter(Boolean)
+        )
+      ];
+
+      if (equipamentos.length === 0) {
+        semRegistros.style.display = 'block';
+        seletor.disabled = true;
+        return;
+      }
+
+      equipamentos.forEach(function (equipamento) {
+        const opcao = document.createElement('option');
+        opcao.value = equipamento;
+        opcao.textContent = equipamento;
+        seletor.appendChild(opcao);
+      });
+    }
+
+    function criarListaInspecao() {
+      const lista = document.getElementById('lista-inspecao');
+
+      ITENS_INSPECAO.forEach(function (item) {
+        const linha = document.createElement('div');
+        linha.className = 'item-inspecao';
+
+        const nome = document.createElement('div');
+        nome.className = 'item-nome';
+
+        const icone = document.createElement('i');
+        icone.className = 'fa-solid ' + item.icone;
+
+        const texto = document.createElement('span');
+        texto.textContent = item.nome;
+
+        nome.appendChild(icone);
+        nome.appendChild(texto);
+
+        const seletor = document.createElement('select');
+        seletor.id = 'status-' + item.id;
+        seletor.setAttribute('aria-label', 'Status: ' + item.nome);
+
+        const opcoes = [
+          { value: '', label: '— Selecione —' },
+          { value: 'Conforme', label: 'Conforme' },
+          { value: 'Não conforme', label: 'Não conforme' },
+          { value: 'Não se aplica', label: 'Não se aplica' }
+        ];
+
+        opcoes.forEach(function (opcaoDados) {
+          const opcao = document.createElement('option');
+          opcao.value = opcaoDados.value;
+          opcao.textContent = opcaoDados.label;
+          seletor.appendChild(opcao);
+        });
+
+        linha.appendChild(nome);
+        linha.appendChild(seletor);
+        lista.appendChild(linha);
+      });
+    }
+
+    function limparFormulario() {
+      document.getElementById('sel-equipamento').value = '';
+      document.getElementById('observacoes').value = '';
+
+      ITENS_INSPECAO.forEach(function (item) {
+        document.getElementById('status-' + item.id).value = '';
+      });
+
+      limparMensagens();
+    }
+
+    function salvarInspecao() {
+      const equipamento = document.getElementById('sel-equipamento').value;
+      const observacoes = document.getElementById('observacoes').value.trim();
+
+      if (!equipamento) {
+        mostrarMensagem('erro');
+        return;
+      }
+
+      const status = {};
+      let todosPreenchidos = true;
+
+      ITENS_INSPECAO.forEach(function (item) {
+        const valor = document.getElementById('status-' + item.id).value;
+
+        if (!valor) {
+          todosPreenchidos = false;
+        }
+
+        status[item.id] = {
+          item: item.nome,
+          valor: valor
+        };
+      });
+
+      if (!todosPreenchidos) {
+        mostrarMensagem('erro');
+        return;
+      }
+
+      const inspecoes = getInspecoes();
+
+      inspecoes.push({
+        id: gerarId(),
+        equipamento: equipamento,
+        data: new Date().toISOString(),
+        status: status,
+        observacoes: observacoes
+      });
+
+      localStorage.setItem('lubeasy_inspecoes', JSON.stringify(inspecoes));
+
+      mostrarMensagem('sucesso');
+      limparFormulario();
+    }
+
+    criarListaInspecao();
+    carregarEquipamentos();
+  </script>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function () {
+        navigator.serviceWorker.register('./serviceworker.js')
+          .then(function (registro) {
+            console.log('Service Worker registrado:', registro);
+          })
+          .catch(function (erro) {
+            console.error('Erro ao registrar o Service Worker:', erro);
+          });
+      });
+    }
+  </script>
+
+</body>
+</html>
