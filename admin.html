@@ -1,665 +1,745 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- PWA -->
-  <link rel="manifest" href="./manifest.json">
-  <link rel="icon" href="./icon.svg" type="image/svg+xml">
+    <link rel="manifest" href="./manifest.json" />
+    <link rel="icon" href="./icon.svg" type="image/svg+xml" />
 
-  <meta name="theme-color" content="#2176c7">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Manutenção Integrada">
+    <meta name="theme-color" content="#2176c7" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <meta name="apple-mobile-web-app-title" content="Manutenção Integrada" />
 
-  <title>Manutenção Integrada — Painel Administrativo</title>
+    <title>Manutenção Integrada — Painel Administrativo</title>
 
-  <link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
-  >
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
 
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Segoe UI', sans-serif;
-    }
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Segoe UI", sans-serif;
+      }
 
-    body {
-      background: linear-gradient(135deg, #0d2b4e, #1a4f8a);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px;
-      gap: 24px;
-    }
+      body {
+        background: linear-gradient(135deg, #0d2b4e, #1a4f8a);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px;
+        gap: 24px;
+      }
 
-    .topbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      width: 100%;
-      max-width: 900px;
-      gap: 20px;
-    }
-
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      color: #fff;
-      font-size: 22px;
-      font-weight: 700;
-    }
-
-    .logo i {
-      color: #f0c040;
-    }
-
-    .btn-logout {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      color: #fff;
-      background: rgba(255, 255, 255, 0.15);
-      border: none;
-      padding: 8px 16px;
-      border-radius: 8px;
-      font-size: 14px;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-
-    .btn-logout:hover {
-      background: rgba(255, 255, 255, 0.28);
-    }
-
-    .bem-vindo {
-      color: rgba(255, 255, 255, 0.85);
-      font-size: 14px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      margin-left: auto;
-    }
-
-    .painel {
-      background: #fff;
-      border-radius: 16px;
-      padding: 36px;
-      max-width: 900px;
-      width: 100%;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-    }
-
-    .painel h2 {
-      font-size: 20px;
-      color: #0d2b4e;
-      margin-bottom: 24px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      border-bottom: 2px solid #f0f4f8;
-      padding-bottom: 16px;
-    }
-
-    .form-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      margin-bottom: 20px;
-    }
-
-    .grupo {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .grupo label {
-      font-size: 13px;
-      font-weight: 600;
-      color: #0d2b4e;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .grupo input {
-      padding: 10px 14px;
-      border: 2px solid #d0dce8;
-      border-radius: 8px;
-      font-size: 14px;
-      color: #0d2b4e;
-      background: #f0f4f8;
-      outline: none;
-      transition: border-color 0.2s;
-    }
-
-    .grupo input:focus {
-      border-color: #2176c7;
-    }
-
-    .btn-add {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      background: #2176c7;
-      color: #fff;
-      border: none;
-      padding: 12px 24px;
-      border-radius: 8px;
-      font-size: 15px;
-      font-weight: 600;
-      cursor: pointer;
-      margin-top: 4px;
-      transition: background 0.2s;
-    }
-
-    .btn-add:hover {
-      background: #1a5fa3;
-    }
-
-    .msg-sucesso {
-      display: none;
-      align-items: center;
-      gap: 8px;
-      background: #eafaf1;
-      border: 1px solid #a9dfbf;
-      border-radius: 8px;
-      padding: 10px 14px;
-      color: #1e8449;
-      font-size: 14px;
-      margin-top: 16px;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 24px;
-    }
-
-    th {
-      background: #f0f4f8;
-      color: #0d2b4e;
-      font-size: 13px;
-      padding: 10px 14px;
-      text-align: left;
-      font-weight: 600;
-    }
-
-    td {
-      padding: 10px 14px;
-      font-size: 14px;
-      color: #333;
-      border-bottom: 1px solid #f0f4f8;
-    }
-
-    tr:hover td {
-      background: #f8fbff;
-    }
-
-    .btn-del {
-      background: none;
-      border: none;
-      color: #e74c3c;
-      cursor: pointer;
-      font-size: 16px;
-      padding: 4px 8px;
-      border-radius: 6px;
-    }
-
-    .btn-del:hover {
-      background: #fdecea;
-    }
-
-    .vazio {
-      text-align: center;
-      color: #999;
-      padding: 30px;
-      font-size: 14px;
-    }
-
-    .stats {
-      display: flex;
-      gap: 16px;
-      flex-wrap: wrap;
-      margin-bottom: 24px;
-    }
-
-    .stat-card {
-      background: #f0f4f8;
-      border-radius: 12px;
-      padding: 16px 24px;
-      flex: 1;
-      min-width: 120px;
-      text-align: center;
-    }
-
-    .stat-card i {
-      font-size: 24px;
-      color: #2176c7;
-      margin-bottom: 8px;
-      display: block;
-    }
-
-    .stat-card span {
-      font-size: 28px;
-      font-weight: 700;
-      color: #0d2b4e;
-      display: block;
-    }
-
-    .stat-card p {
-      font-size: 12px;
-      color: #555;
-      margin-top: 4px;
-    }
-
-    footer {
-      color: rgba(255, 255, 255, 0.5);
-      font-size: 13px;
-      text-align: center;
-      padding-bottom: 10px;
-    }
-
-    @media (max-width: 700px) {
       .topbar {
-        flex-wrap: wrap;
-      }
-
-      .bem-vindo {
-        order: 3;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
         width: 100%;
-        justify-content: center;
-        margin-left: 0;
-      }
-    }
-
-    @media (max-width: 600px) {
-      .form-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .painel {
-        padding: 20px 16px;
-        overflow-x: auto;
-      }
-
-      table {
-        min-width: 650px;
+        max-width: 900px;
+        gap: 20px;
       }
 
       .logo {
-        font-size: 18px;
-      }
-    }
-  </style>
-</head>
-
-<body>
-
-  <!-- BARRA SUPERIOR -->
-  <div class="topbar">
-    <div class="logo">
-      <i class="fa-solid fa-screwdriver-wrench"></i>
-      <span>Manutenção Integrada</span>
-    </div>
-
-    <span class="bem-vindo">
-      <i class="fa-solid fa-user"></i>
-      <span id="nome-usuario">Admin</span>
-    </span>
-
-    <button
-      type="button"
-      class="btn-logout"
-      onclick="fazerLogout()"
-    >
-      <i class="fa-solid fa-right-from-bracket"></i>
-      Sair
-    </button>
-  </div>
-
-  <!-- PAINEL PRINCIPAL -->
-  <div class="painel">
-
-    <!-- ESTATÍSTICAS -->
-    <div class="stats">
-      <div class="stat-card">
-        <i class="fa-solid fa-database"></i>
-        <span id="total-registros">0</span>
-        <p>Registros</p>
-      </div>
-
-      <div class="stat-card">
-        <i class="fa-solid fa-magnifying-glass"></i>
-        <span id="total-consultas">0</span>
-        <p>Consultas</p>
-      </div>
-    </div>
-
-    <!-- FORMULÁRIO -->
-    <h2>
-      <i class="fa-solid fa-plus"></i>
-      Adicionar Registro
-    </h2>
-
-    <div class="form-grid">
-      <div class="grupo">
-        <label for="inp-equipamento">
-          <i class="fa-solid fa-gears"></i>
-          Equipamento
-        </label>
-
-        <input
-          type="text"
-          id="inp-equipamento"
-          placeholder="Ex: Trator John Deere"
-        >
-      </div>
-
-      <div class="grupo">
-        <label for="inp-componente">
-          <i class="fa-solid fa-cog"></i>
-          Componente
-        </label>
-
-        <input
-          type="text"
-          id="inp-componente"
-          placeholder="Ex: Motor"
-        >
-      </div>
-
-      <div class="grupo">
-        <label for="inp-oleo">
-          <i class="fa-solid fa-flask"></i>
-          Óleo/Lubrificante
-        </label>
-
-        <input
-          type="text"
-          id="inp-oleo"
-          placeholder="Ex: Shell Rimula R4 15W40"
-        >
-      </div>
-
-      <div class="grupo">
-        <label for="inp-capacidade">
-          <i class="fa-solid fa-fill-drip"></i>
-          Capacidade
-        </label>
-
-        <input
-          type="text"
-          id="inp-capacidade"
-          placeholder="Ex: 12 Litros"
-        >
-      </div>
-    </div>
-
-    <button
-      type="button"
-      class="btn-add"
-      onclick="adicionarRegistro()"
-    >
-      <i class="fa-solid fa-plus"></i>
-      Adicionar
-    </button>
-
-    <div class="msg-sucesso" id="msg-sucesso">
-      <i class="fa-solid fa-circle-check"></i>
-      Registro adicionado com sucesso!
-    </div>
-
-    <!-- TABELA -->
-    <h2 style="margin-top: 32px;">
-      <i class="fa-solid fa-list"></i>
-      Registros Cadastrados
-    </h2>
-
-    <table>
-      <thead>
-        <tr>
-          <th>Equipamento</th>
-          <th>Componente</th>
-          <th>Óleo</th>
-          <th>Capacidade</th>
-          <th>Ação</th>
-        </tr>
-      </thead>
-
-      <tbody id="tabela-body">
-        <tr>
-          <td colspan="5" class="vazio">
-            Nenhum registro cadastrado.
-          </td>
-        </tr>
-      </tbody>
-    </table>
-
-  </div>
-
-  <footer>
-    &copy; 2026 Manutenção Integrada — Todos os direitos reservados
-  </footer>
-
-  <script>
-   function verificarSessao() {
-  const sessao =
-    localStorage.getItem('lubeasy_sessao') ||
-    sessionStorage.getItem('lubeasy_sessao');
-
-  if (!sessao) {
-    window.location.href = 'login.html';
-    return null;
-  }
-
-  try {
-    return JSON.parse(sessao);
-  } catch (erro) {
-    localStorage.removeItem('lubeasy_sessao');
-    sessionStorage.removeItem('lubeasy_sessao');
-    window.location.href = 'login.html';
-    return null;
-  }
-}
-
-function fazerLogout() {
-  localStorage.removeItem('lubeasy_sessao');
-  sessionStorage.removeItem('lubeasy_sessao');
-  window.location.href = 'login.html';
-}
-
-    function getDados() {
-      const dados = localStorage.getItem('lubeasy_dados');
-
-      if (!dados) {
-        return [];
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #fff;
+        font-size: 22px;
+        font-weight: 700;
       }
 
-      try {
-        return JSON.parse(dados);
-      } catch (erro) {
-        console.error('Erro ao ler os dados:', erro);
-        return [];
+      .logo i {
+        color: #f0c040;
       }
-    }
 
-    function salvarDados(dados) {
-      localStorage.setItem(
-        'lubeasy_dados',
-        JSON.stringify(dados)
-      );
-    }
+      .btn-logout {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #fff;
+        background: rgba(255, 255, 255, 0.15);
+        border: none;
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-size: 14px;
+        cursor: pointer;
+        transition: background 0.2s;
+      }
 
-    function gerarId() {
-      return '_' + Math.random().toString(36).substr(2, 9);
-    }
+      .btn-logout:hover {
+        background: rgba(255, 255, 255, 0.28);
+      }
 
-    function escaparHTML(valor) {
-  return String(valor)
-    .replace(/&/g, '&')
-    .replace(/</g, '<')
-    .replace(/>/g, '>')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
-      } 
+      .bem-vindo {
+        color: rgba(255, 255, 255, 0.85);
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-left: auto;
+      }
 
-    function atualizarStats() {
-      const dados = getDados();
-      const consultas = parseInt(
-        localStorage.getItem('lubeasy_consultas') || '0',
-        10
-      );
+      .painel {
+        background: #fff;
+        border-radius: 16px;
+        padding: 36px;
+        max-width: 900px;
+        width: 100%;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      }
 
-      document.getElementById('total-registros').textContent =
-        dados.length;
+      .painel h2 {
+        font-size: 20px;
+        color: #0d2b4e;
+        margin-bottom: 24px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        border-bottom: 2px solid #f0f4f8;
+        padding-bottom: 16px;
+      }
 
-      document.getElementById('total-consultas').textContent =
-        Number.isNaN(consultas) ? 0 : consultas;
-    }
+      .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        margin-bottom: 20px;
+      }
 
-    function renderTabela() {
-      const dados = getDados();
-      const tbody = document.getElementById('tabela-body');
+      .grupo {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
 
-      if (dados.length === 0) {
-        tbody.innerHTML = `
+      .grupo label {
+        font-size: 13px;
+        font-weight: 600;
+        color: #0d2b4e;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .grupo input {
+        padding: 10px 14px;
+        border: 2px solid #d0dce8;
+        border-radius: 8px;
+        font-size: 14px;
+        color: #0d2b4e;
+        background: #f0f4f8;
+        outline: none;
+        transition: border-color 0.2s;
+      }
+
+      .grupo input:focus {
+        border-color: #2176c7;
+      }
+
+      .btn-add {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: #2176c7;
+        color: #fff;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        margin-top: 4px;
+        transition: background 0.2s;
+      }
+
+      .btn-add:hover {
+        background: #1a5fa3;
+      }
+
+      .btn-add:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
+      .msg-sucesso,
+      .msg-erro {
+        display: none;
+        align-items: center;
+        gap: 8px;
+        border-radius: 8px;
+        padding: 10px 14px;
+        font-size: 14px;
+        margin-top: 16px;
+      }
+
+      .msg-sucesso {
+        background: #eafaf1;
+        border: 1px solid #a9dfbf;
+        color: #1e8449;
+      }
+
+      .msg-erro {
+        background: #fcebea;
+        border: 1px solid #f5b7b1;
+        color: #a93226;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 24px;
+      }
+
+      th {
+        background: #f0f4f8;
+        color: #0d2b4e;
+        font-size: 13px;
+        padding: 10px 14px;
+        text-align: left;
+        font-weight: 600;
+      }
+
+      td {
+        padding: 10px 14px;
+        font-size: 14px;
+        color: #333;
+        border-bottom: 1px solid #f0f4f8;
+      }
+
+      tr:hover td {
+        background: #f8fbff;
+      }
+
+      .btn-del {
+        background: none;
+        border: none;
+        color: #e74c3c;
+        cursor: pointer;
+        font-size: 16px;
+        padding: 4px 8px;
+        border-radius: 6px;
+      }
+
+      .btn-del:hover {
+        background: #fdecea;
+      }
+
+      .vazio {
+        text-align: center;
+        color: #999;
+        padding: 30px;
+        font-size: 14px;
+      }
+
+      .stats {
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+        margin-bottom: 24px;
+      }
+
+      .stat-card {
+        background: #f0f4f8;
+        border-radius: 12px;
+        padding: 16px 24px;
+        flex: 1;
+        min-width: 120px;
+        text-align: center;
+      }
+
+      .stat-card i {
+        font-size: 24px;
+        color: #2176c7;
+        margin-bottom: 8px;
+        display: block;
+      }
+
+      .stat-card span {
+        font-size: 28px;
+        font-weight: 700;
+        color: #0d2b4e;
+        display: block;
+      }
+
+      .stat-card p {
+        font-size: 12px;
+        color: #555;
+        margin-top: 4px;
+      }
+
+      footer {
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 13px;
+        text-align: center;
+        padding-bottom: 10px;
+      }
+
+      @media (max-width: 700px) {
+        .topbar {
+          flex-wrap: wrap;
+        }
+
+        .bem-vindo {
+          order: 3;
+          width: 100%;
+          justify-content: center;
+          margin-left: 0;
+        }
+      }
+
+      @media (max-width: 600px) {
+        .form-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .painel {
+          padding: 20px 16px;
+          overflow-x: auto;
+        }
+
+        table {
+          min-width: 650px;
+        }
+
+        .logo {
+          font-size: 18px;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="topbar">
+      <div class="logo">
+        <i class="fa-solid fa-screwdriver-wrench"></i>
+        <span>Manutenção Integrada</span>
+      </div>
+
+      <span class="bem-vindo">
+        <i class="fa-solid fa-user"></i>
+        <span id="nome-usuario">Admin</span>
+      </span>
+
+      <button type="button" class="btn-logout" onclick="fazerLogout()">
+        <i class="fa-solid fa-right-from-bracket"></i>
+        Sair
+      </button>
+    </div>
+
+    <main class="painel">
+      <div class="stats">
+        <div class="stat-card">
+          <i class="fa-solid fa-database"></i>
+          <span id="total-registros">0</span>
+          <p>Registros</p>
+        </div>
+
+        <div class="stat-card">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <span id="total-consultas">0</span>
+          <p>Consultas</p>
+        </div>
+      </div>
+
+      <h2>
+        <i class="fa-solid fa-plus"></i>
+        Adicionar Registro
+      </h2>
+
+      <div class="form-grid">
+        <div class="grupo">
+          <label for="inp-equipamento">
+            <i class="fa-solid fa-gears"></i>
+            Equipamento
+          </label>
+
+          <input
+            type="text"
+            id="inp-equipamento"
+            placeholder="Ex: Trator John Deere"
+            maxlength="150"
+          />
+        </div>
+
+        <div class="grupo">
+          <label for="inp-componente">
+            <i class="fa-solid fa-cog"></i>
+            Componente
+          </label>
+
+          <input
+            type="text"
+            id="inp-componente"
+            placeholder="Ex: Motor"
+            maxlength="150"
+          />
+        </div>
+
+        <div class="grupo">
+          <label for="inp-oleo">
+            <i class="fa-solid fa-flask"></i>
+            Óleo/Lubrificante
+          </label>
+
+          <input
+            type="text"
+            id="inp-oleo"
+            placeholder="Ex: Shell Rimula R4 15W40"
+            maxlength="150"
+          />
+        </div>
+
+        <div class="grupo">
+          <label for="inp-capacidade">
+            <i class="fa-solid fa-fill-drip"></i>
+            Capacidade
+          </label>
+
+          <input
+            type="text"
+            id="inp-capacidade"
+            placeholder="Ex: 12 Litros"
+            maxlength="100"
+          />
+        </div>
+      </div>
+
+      <button
+        type="button"
+        class="btn-add"
+        id="btn-adicionar"
+        onclick="adicionarRegistro()"
+      >
+        <i class="fa-solid fa-plus"></i>
+        Adicionar
+      </button>
+
+      <div class="msg-sucesso" id="msg-sucesso">
+        <i class="fa-solid fa-circle-check"></i>
+        <span>Registro adicionado com sucesso!</span>
+      </div>
+
+      <div class="msg-erro" id="msg-erro">
+        <i class="fa-solid fa-circle-exclamation"></i>
+        <span id="texto-erro">Ocorreu um erro.</span>
+      </div>
+
+      <h2 style="margin-top: 32px">
+        <i class="fa-solid fa-list"></i>
+        Registros Cadastrados
+      </h2>
+
+      <table>
+        <thead>
           <tr>
-            <td colspan="5" class="vazio">
-              Nenhum registro cadastrado.
-            </td>
+            <th>Equipamento</th>
+            <th>Componente</th>
+            <th>Óleo</th>
+            <th>Capacidade</th>
+            <th>Ação</th>
           </tr>
-        `;
-        return;
-      }
+        </thead>
 
-      tbody.innerHTML = dados.map(function (dado) {
-        return `
+        <tbody id="tabela-body">
           <tr>
-            <td>${escaparHTML(dado.equipamento)}</td>
-            <td>${escaparHTML(dado.componente)}</td>
-            <td>${escaparHTML(dado.oleo)}</td>
-            <td>${escaparHTML(dado.capacidade)}</td>
-            <td>
-              <button
-                type="button"
-                class="btn-del"
-                onclick="excluirRegistro('${escaparHTML(dado.id)}')"
-                aria-label="Excluir registro"
-              >
-                <i class="fa-solid fa-trash"></i>
-              </button>
-            </td>
+            <td colspan="5" class="vazio">Carregando registros...</td>
           </tr>
-        `;
-      }).join('');
-    }
+        </tbody>
+      </table>
+    </main>
 
-    function adicionarRegistro() {
-      const equipamento = document
-        .getElementById('inp-equipamento')
-        .value
-        .trim();
+    <footer>
+      &copy; 2026 Manutenção Integrada — Todos os direitos reservados
+    </footer>
 
-      const componente = document
-        .getElementById('inp-componente')
-        .value
-        .trim();
+    <script type="module">
+      import {
+        addDoc,
+        collection,
+        deleteDoc,
+        doc,
+        onSnapshot,
+        query,
+        orderBy,
+      } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-      const oleo = document
-        .getElementById('inp-oleo')
-        .value
-        .trim();
+      import { db } from "./js/firebase-config.js";
 
-      const capacidade = document
-        .getElementById('inp-capacidade')
-        .value
-        .trim();
+      let todosRegistros = [];
 
-      if (!equipamento || !componente || !oleo || !capacidade) {
-        alert('Preencha todos os campos!');
-        return;
+      function verificarSessao() {
+        const sessao =
+          localStorage.getItem("lubeasy_sessao") ||
+          sessionStorage.getItem("lubeasy_sessao");
+
+        if (!sessao) {
+          window.location.href = "login.html";
+          return null;
+        }
+
+        try {
+          return JSON.parse(sessao);
+        } catch (erro) {
+          localStorage.removeItem("lubeasy_sessao");
+          sessionStorage.removeItem("lubeasy_sessao");
+          window.location.href = "login.html";
+          return null;
+        }
       }
 
-      const dados = getDados();
+      window.fazerLogout = function () {
+        localStorage.removeItem("lubeasy_sessao");
+        sessionStorage.removeItem("lubeasy_sessao");
+        window.location.href = "login.html";
+      };
 
-      dados.push({
-        id: gerarId(),
-        equipamento: equipamento,
-        componente: componente,
-        oleo: oleo,
-        capacidade: capacidade
-      });
+      function mostrarSucesso() {
+        const mensagem = document.getElementById("msg-sucesso");
+        mensagem.style.display = "flex";
 
-      salvarDados(dados);
-
-      document.getElementById('inp-equipamento').value = '';
-      document.getElementById('inp-componente').value = '';
-      document.getElementById('inp-oleo').value = '';
-      document.getElementById('inp-capacidade').value = '';
-
-      const mensagem = document.getElementById('msg-sucesso');
-      mensagem.style.display = 'flex';
-
-      setTimeout(function () {
-        mensagem.style.display = 'none';
-      }, 3000);
-
-      renderTabela();
-      atualizarStats();
-    }
-
-    function excluirRegistro(id) {
-      if (!confirm('Deseja excluir este registro?')) {
-        return;
+        setTimeout(function () {
+          mensagem.style.display = "none";
+        }, 3000);
       }
 
-      const dados = getDados().filter(function (dado) {
-        return dado.id !== id;
-      });
+      function mostrarErro(mensagem) {
+        document.getElementById("texto-erro").textContent = mensagem;
+        document.getElementById("msg-erro").style.display = "flex";
+      }
 
-      salvarDados(dados);
-      renderTabela();
-      atualizarStats();
-    }
+      function esconderErro() {
+        document.getElementById("msg-erro").style.display = "none";
+      }
 
-    const sessao = verificarSessao();
+      function atualizarStats() {
+        const consultas = parseInt(
+          localStorage.getItem("lubeasy_consultas") || "0",
+          10,
+        );
 
-    if (sessao) {
-      document.getElementById('nome-usuario').textContent =
-        sessao.usuario || 'Administrador';
+        document.getElementById("total-registros").textContent =
+          todosRegistros.length;
 
-      renderTabela();
-      atualizarStats();
-    }
-  </script>
+        document.getElementById("total-consultas").textContent = Number.isNaN(
+          consultas,
+        )
+          ? "0"
+          : consultas;
+      }
 
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', function () {
-        navigator.serviceWorker.register('./serviceworker.js')
-          .then(function (registro) {
-            console.log(
-              'Service Worker registrado:',
-              registro
-            );
-          })
-          .catch(function (erro) {
-            console.error(
-              'Erro ao registrar o Service Worker:',
-              erro
-            );
+      function obterComponente(registro) {
+        return registro.ponto || registro.componente || "";
+      }
+
+      function obterOleo(registro) {
+        return registro.lubrificante || registro.oleo || "";
+      }
+
+      function obterCapacidade(registro) {
+        return registro.quantidade || registro.capacidade || "";
+      }
+
+      function criarCelula(texto) {
+        const celula = document.createElement("td");
+        celula.textContent = texto || "—";
+        return celula;
+      }
+
+      function renderTabela() {
+        const tbody = document.getElementById("tabela-body");
+        tbody.innerHTML = "";
+
+        if (todosRegistros.length === 0) {
+          const linha = document.createElement("tr");
+          const celula = document.createElement("td");
+
+          celula.colSpan = 5;
+          celula.className = "vazio";
+          celula.textContent = "Nenhum registro cadastrado.";
+
+          linha.appendChild(celula);
+          tbody.appendChild(linha);
+          return;
+        }
+
+        const registrosOrdenados = [...todosRegistros].sort(function (a, b) {
+          return String(a.equipamento || "").localeCompare(
+            String(b.equipamento || ""),
+            "pt-BR",
+          );
+        });
+
+        registrosOrdenados.forEach(function (registro) {
+          const linha = document.createElement("tr");
+
+          linha.appendChild(criarCelula(registro.equipamento));
+
+          linha.appendChild(criarCelula(obterComponente(registro)));
+
+          linha.appendChild(criarCelula(obterOleo(registro)));
+
+          linha.appendChild(criarCelula(obterCapacidade(registro)));
+
+          const celulaAcao = document.createElement("td");
+
+          const botaoExcluir = document.createElement("button");
+          botaoExcluir.type = "button";
+          botaoExcluir.className = "btn-del";
+          botaoExcluir.title = "Excluir registro";
+          botaoExcluir.setAttribute("aria-label", "Excluir registro");
+
+          const icone = document.createElement("i");
+          icone.className = "fa-solid fa-trash";
+
+          botaoExcluir.appendChild(icone);
+
+          botaoExcluir.addEventListener("click", function () {
+            excluirRegistro(registro.id);
           });
-      });
-    }
-  </script>
 
-</body>
+          celulaAcao.appendChild(botaoExcluir);
+          linha.appendChild(celulaAcao);
+
+          tbody.appendChild(linha);
+        });
+      }
+
+      window.adicionarRegistro = async function () {
+        esconderErro();
+
+        const equipamento = document
+          .getElementById("inp-equipamento")
+          .value.trim();
+
+        const componente = document
+          .getElementById("inp-componente")
+          .value.trim();
+
+        const oleo = document.getElementById("inp-oleo").value.trim();
+
+        const capacidade = document
+          .getElementById("inp-capacidade")
+          .value.trim();
+
+        if (!equipamento || !componente || !oleo || !capacidade) {
+          alert("Preencha todos os campos!");
+          return;
+        }
+
+        const botao = document.getElementById("btn-adicionar");
+        botao.disabled = true;
+        botao.innerHTML =
+          '<i class="fa-solid fa-spinner fa-spin"></i> Salvando...';
+
+        try {
+          await addDoc(collection(db, "equipamentos"), {
+            equipamento: equipamento,
+            ponto: componente,
+            lubrificante: oleo,
+            quantidade: capacidade,
+          });
+
+          document.getElementById("inp-equipamento").value = "";
+          document.getElementById("inp-componente").value = "";
+          document.getElementById("inp-oleo").value = "";
+          document.getElementById("inp-capacidade").value = "";
+
+          mostrarSucesso();
+        } catch (erro) {
+          console.error("Erro ao adicionar registro:", erro);
+
+          mostrarErro("Não foi possível salvar o registro no Firebase.");
+        } finally {
+          botao.disabled = false;
+          botao.innerHTML = '<i class="fa-solid fa-plus"></i> Adicionar';
+        }
+      };
+
+      async function excluirRegistro(id) {
+        if (!id) {
+          mostrarErro("Registro inválido.");
+          return;
+        }
+
+        const confirmar = confirm("Deseja excluir este registro do Firebase?");
+
+        if (!confirmar) {
+          return;
+        }
+
+        try {
+          await deleteDoc(doc(db, "equipamentos", id));
+        } catch (erro) {
+          console.error("Erro ao excluir registro:", erro);
+
+          mostrarErro("Não foi possível excluir o registro.");
+        }
+      }
+
+      const sessao = verificarSessao();
+
+      if (sessao) {
+        document.getElementById("nome-usuario").textContent =
+          sessao.usuario || "Administrador";
+
+        const consulta = query(
+          collection(db, "equipamentos"),
+          orderBy("equipamento"),
+        );
+
+        onSnapshot(
+          consulta,
+          function (snapshot) {
+            esconderErro();
+
+            todosRegistros = [];
+
+            snapshot.forEach(function (documento) {
+              todosRegistros.push({
+                id: documento.id,
+                ...documento.data(),
+              });
+            });
+
+            renderTabela();
+            atualizarStats();
+          },
+          function (erro) {
+            console.error("Erro ao carregar registros:", erro);
+
+            todosRegistros = [];
+            renderTabela();
+            atualizarStats();
+
+            mostrarErro("Não foi possível carregar os registros do Firebase.");
+          },
+        );
+      }
+    </script>
+
+    <script>
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", function () {
+          navigator.serviceWorker
+            .register("./serviceworker.js")
+            .then(function (registro) {
+              console.log("Service Worker registrado:", registro);
+            })
+            .catch(function (erro) {
+              console.error("Erro ao registrar o Service Worker:", erro);
+            });
+        });
+      }
+    </script>
+  </body>
 </html>
