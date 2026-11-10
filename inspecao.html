@@ -48,7 +48,37 @@
         justify-content: space-between;
         gap: 16px;
       }
+      .cabecalho-carteira {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 8px;
+      }
 
+      .cabecalho-carteira h2 {
+        margin-bottom: 0;
+      }
+
+      .btn-sair-carteira {
+        color: #fff;
+        background: #c0392b;
+      }
+
+      .btn-sair-carteira:hover {
+        background: #a93226;
+      }
+
+      @media (max-width: 620px) {
+        .cabecalho-carteira {
+          align-items: stretch;
+          flex-direction: column;
+        }
+
+        .btn-sair-carteira {
+          width: 100%;
+        }
+      }
       .btn-voltar {
         display: flex;
         align-items: center;
@@ -634,10 +664,21 @@
         Voltar para Inspeção
       </button>
 
-      <h2>
-        <i class="fa-solid fa-briefcase"></i>
-        Minha Carteira
-      </h2>
+      <div class="cabecalho-carteira">
+        <h2>
+          <i class="fa-solid fa-briefcase"></i>
+          Minha Carteira
+        </h2>
+
+        <button
+          type="button"
+          class="btn btn-sair-carteira"
+          onclick="sairCarteira()"
+        >
+          <i class="fa-solid fa-right-from-bracket"></i>
+          Sair da conta
+        </button>
+      </div>
 
       <p class="carteira-subtitulo">
         Cadastre e acompanhe suas notas de manutenção.
@@ -1105,7 +1146,26 @@
         document.getElementById("painel-carteira").classList.remove("ativo");
         document.querySelector("main.box").style.display = "block";
       }
+      function sairCarteira() {
+        const confirmou = confirm(
+          "Deseja sair da conta? Suas notas continuarão salvas.",
+        );
 
+        if (!confirmou) {
+          return;
+        }
+
+        localStorage.removeItem(CHAVE_SESSAO_CARTEIRA);
+
+        document.getElementById("painel-carteira").classList.remove("ativo");
+        document.querySelector("main.box").style.display = "block";
+
+        document.getElementById("carteira-usuario").value = "";
+        document.getElementById("carteira-senha").value = "";
+
+        document.getElementById("form-nota-carteira").reset();
+        document.getElementById("lista-notas-carteira").innerHTML = "";
+      }
       function definirDataCriacao() {
         const campo = document.getElementById("data-criacao");
 
