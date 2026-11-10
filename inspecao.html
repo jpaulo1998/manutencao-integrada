@@ -692,9 +692,22 @@
 
         <div class="campo">
           <label for="equipamento-nota">Equipamento</label>
-          <input type="text" id="equipamento-nota" required />
-        </div>
 
+          <select id="equipamento-nota" required disabled>
+            <option value="">Carregando equipamentos...</option>
+          </select>
+        </div>
+        <div class="campo">
+          <label for="tag-nota">TAG do equipamento</label>
+
+          <input
+            type="text"
+            id="tag-nota"
+            placeholder="Ex: TAG-001"
+            required
+            maxlength="50"
+          />
+        </div>
         <div class="campo campo-largo">
           <label for="descricao-nota">Descrição</label>
           <textarea id="descricao-nota" required></textarea>
@@ -768,6 +781,7 @@
               <th>Número</th>
               <th>Descrição</th>
               <th>Equipamento</th>
+              <th>TAG</th>
               <th>Criação</th>
               <th>Execução planejada</th>
               <th>Criticidade</th>
@@ -918,34 +932,6 @@
       function limparMensagens() {
         document.getElementById("mensagem-sucesso").style.display = "none";
         document.getElementById("mensagem-erro").style.display = "none";
-      }
-
-      function carregarEquipamentos() {
-        const seletor = document.getElementById("sel-equipamento");
-        const semRegistros = document.getElementById("sem-registros");
-
-        const equipamentos = [
-          ...new Set(
-            getDados()
-              .map(function (dado) {
-                return dado.equipamento;
-              })
-              .filter(Boolean),
-          ),
-        ];
-
-        if (equipamentos.length === 0) {
-          semRegistros.style.display = "block";
-          seletor.disabled = true;
-          return;
-        }
-
-        equipamentos.forEach(function (equipamento) {
-          const opcao = document.createElement("option");
-          opcao.value = equipamento;
-          opcao.textContent = equipamento;
-          seletor.appendChild(opcao);
-        });
       }
 
       function criarListaInspecao() {
@@ -1213,6 +1199,7 @@
           numero: document.getElementById("numero-nota").value.trim(),
           descricao: document.getElementById("descricao-nota").value.trim(),
           equipamento: document.getElementById("equipamento-nota").value.trim(),
+          tag: document.getElementById("tag-nota").value.trim(),
           dataCriacao: document.getElementById("data-criacao").value,
           dataExecucao: document.getElementById("data-execucao").value,
           criticidade: document.getElementById("criticidade-nota").value,
@@ -1265,29 +1252,30 @@
           const linha = document.createElement("tr");
 
           linha.innerHTML = `
-            <td>${escaparTexto(nota.numero)}</td>
-            <td>${escaparTexto(nota.descricao)}</td>
-            <td>${escaparTexto(nota.equipamento)}</td>
-            <td>${formatarData(nota.dataCriacao)}</td>
-            <td>${formatarData(nota.dataExecucao)}</td>
-            <td>
-              <span class="badge-criticidade badge-${classeCriticidade(
-                nota.criticidade,
-              )}">
-                ${escaparTexto(nota.criticidade)}
-              </span>
-            </td>
-            <td>
-              <button
-                type="button"
-                class="btn-excluir-nota"
-                onclick="excluirNotaCarteira('${nota.id}')"
-                title="Excluir nota"
-              >
-                <i class="fa-solid fa-trash"></i>
-              </button>
-            </td>
-          `;
+  <td>${escaparTexto(nota.numero)}</td>
+  <td>${escaparTexto(nota.descricao)}</td>
+  <td>${escaparTexto(nota.equipamento)}</td>
+  <td>${escaparTexto(nota.tag || "-")}</td>
+  <td>${formatarData(nota.dataCriacao)}</td>
+  <td>${formatarData(nota.dataExecucao)}</td>
+  <td>
+    <span class="badge-criticidade badge-${classeCriticidade(
+      nota.criticidade,
+    )}">
+      ${escaparTexto(nota.criticidade)}
+    </span>
+  </td>
+  <td>
+    <button
+      type="button"
+      class="btn-excluir-nota"
+      onclick="excluirNotaCarteira('${nota.id}')"
+      title="Excluir nota"
+    >
+      <i class="fa-solid fa-trash"></i>
+    </button>
+  </td>
+`;
 
           lista.appendChild(linha);
         });
@@ -1326,9 +1314,152 @@
         .addEventListener("input", renderizarNotasCarteira);
 
       criarListaInspecao();
-      carregarEquipamentos();
     </script>
+    <script type="module">
+      import {
+        collection,
+        onSnapshot,
+        orderBy,
+        query,
+      } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
+      import { db } from "./js/firebase-config.js";
+
+      const seletorInspecao = document.getElementById("sel-equipamento");
+
+      const seletorCarteira = document.getElementById("equipamento-nota");
+
+      const avisoSemRegistros = document.getElementById("sem-registros");
+
+      function limparSeletor(seletor, texto) {
+        if (!seletor) {
+          return;
+        }
+
+        seletor.innerHTML = "";
+
+        const opcao = document.createElement("option");
+        opcao.value = "";
+        opcao.textContent = texto;
+
+        seletor.appendChild(opcao);
+      }
+
+      function carregarEquipamentosFirebase() {
+        limparSeletor(seletorInspecao, "Carregando equipamentos...");
+
+        limparSeletor(seletorCarteira, "Carregando equipamentos...");
+
+        if (seletorInspecao) {
+          seletorInspecao.disabled = true;
+        }
+
+        if (seletorCarteira) {
+          seletorCarteira.disabled = true;
+        }
+
+        const consulta = query(
+          collection(db, "equipamentos"),
+          orderBy("equipamento"),
+        );
+
+        onSnapshot(
+          consulta,
+          function (snapshot) {
+            const nomesEquipamentos = new Set();
+
+            snapshot.forEach(function (documento) {
+              const dados = documento.data();
+
+              if (dados.equipamento) {
+                nomesEquipamentos.add(String(dados.equipamento).trim());
+              }
+            });
+
+            const equipamentos = Array.from(nomesEquipamentos).sort(
+              function (a, b) {
+                return a.localeCompare(b, "pt-BR");
+              },
+            );
+
+            preencherSeletor(
+              seletorInspecao,
+              equipamentos,
+              "— Selecione o Equipamento —",
+            );
+
+            preencherSeletor(
+              seletorCarteira,
+              equipamentos,
+              "— Selecione o Equipamento —",
+            );
+
+            if (seletorInspecao) {
+              seletorInspecao.disabled = equipamentos.length === 0;
+            }
+
+            if (seletorCarteira) {
+              seletorCarteira.disabled = equipamentos.length === 0;
+            }
+
+            if (avisoSemRegistros) {
+              avisoSemRegistros.style.display =
+                equipamentos.length === 0 ? "block" : "none";
+
+              if (equipamentos.length === 0) {
+                avisoSemRegistros.textContent =
+                  "Nenhum equipamento cadastrado no Firebase. Cadastre equipamentos no painel administrativo.";
+              }
+            }
+          },
+          function (erro) {
+            console.error("Erro ao carregar equipamentos do Firebase:", erro);
+
+            mostrarErroEquipamentos(
+              "Não foi possível carregar os equipamentos.",
+            );
+          },
+        );
+      }
+
+      function preencherSeletor(seletor, equipamentos, textoInicial) {
+        if (!seletor) {
+          return;
+        }
+
+        limparSeletor(seletor, textoInicial);
+
+        equipamentos.forEach(function (equipamento) {
+          const opcao = document.createElement("option");
+
+          opcao.value = equipamento;
+          opcao.textContent = equipamento;
+
+          seletor.appendChild(opcao);
+        });
+      }
+
+      function mostrarErroEquipamentos(texto) {
+        if (seletorInspecao) {
+          limparSeletor(seletorInspecao, texto);
+
+          seletorInspecao.disabled = true;
+        }
+
+        if (seletorCarteira) {
+          limparSeletor(seletorCarteira, texto);
+
+          seletorCarteira.disabled = true;
+        }
+
+        if (avisoSemRegistros) {
+          avisoSemRegistros.style.display = "block";
+          avisoSemRegistros.textContent = texto;
+        }
+      }
+
+      carregarEquipamentosFirebase();
+    </script>
     <script>
       if ("serviceWorker" in navigator) {
         window.addEventListener("load", function () {
