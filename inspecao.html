@@ -1,578 +1,1287 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <link rel="manifest" href="./manifest.json">
-  <link rel="icon" href="./icon.svg" type="image/svg+xml">
+    <link rel="manifest" href="./manifest.json" />
+    <link rel="icon" href="./icon.svg" type="image/svg+xml" />
 
-  <meta name="theme-color" content="#2176c7">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Manutenção Integrada">
+    <meta name="theme-color" content="#2176c7" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <meta name="apple-mobile-web-app-title" content="Manutenção Integrada" />
 
-  <title>Manutenção Integrada — Inspeção</title>
+    <title>Manutenção Integrada — Inspeção</title>
 
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
 
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Segoe UI', sans-serif;
-    }
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Segoe UI", sans-serif;
+      }
 
-    body {
-      background: linear-gradient(135deg, #0d2b4e, #1a4f8a);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px;
-      gap: 24px;
-    }
+      body {
+        background: linear-gradient(135deg, #0d2b4e, #1a4f8a);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px;
+        gap: 24px;
+      }
 
-    .header {
-      width: 100%;
-      max-width: 900px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-    }
+      .header {
+        width: 100%;
+        max-width: 900px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+      }
 
-    .btn-voltar {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      color: #fff;
-      text-decoration: none;
-      font-size: 14px;
-      background: rgba(255, 255, 255, 0.15);
-      padding: 8px 16px;
-      border-radius: 8px;
-      transition: background 0.2s;
-    }
+      .btn-voltar {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #fff;
+        text-decoration: none;
+        font-size: 14px;
+        background: rgba(255, 255, 255, 0.15);
+        padding: 8px 16px;
+        border-radius: 8px;
+        transition: background 0.2s;
+      }
 
-    .btn-voltar:hover {
-      background: rgba(255, 255, 255, 0.28);
-    }
-
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      color: #fff;
-      font-size: 22px;
-      font-weight: 700;
-      text-align: right;
-    }
-
-    .logo i {
-      color: #f0c040;
-    }
-
-    .box {
-      width: 100%;
-      max-width: 900px;
-      background: #fff;
-      border-radius: 16px;
-      padding: 36px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-    }
-
-    .box h1 {
-      font-size: 22px;
-      color: #0d2b4e;
-      margin-bottom: 8px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .sub {
-      color: #555;
-      font-size: 14px;
-      line-height: 1.6;
-      margin-bottom: 28px;
-    }
-
-    .grupo {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      margin-bottom: 22px;
-    }
-
-    .grupo label {
-      color: #0d2b4e;
-      font-size: 14px;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .grupo select,
-    .grupo textarea {
-      width: 100%;
-      border: 2px solid #d0dce8;
-      border-radius: 10px;
-      padding: 12px 14px;
-      color: #0d2b4e;
-      background: #f0f4f8;
-      font-size: 14px;
-      outline: none;
-      transition: border-color 0.2s;
-    }
-
-    .grupo select:focus,
-    .grupo textarea:focus {
-      border-color: #2176c7;
-    }
-
-    .grupo textarea {
-      min-height: 110px;
-      resize: vertical;
-    }
-
-    .secao-titulo {
-      color: #0d2b4e;
-      font-size: 17px;
-      margin: 28px 0 14px;
-      padding-bottom: 10px;
-      border-bottom: 2px solid #f0f4f8;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .item-inspecao {
-      display: grid;
-      grid-template-columns: 1fr 220px;
-      align-items: center;
-      gap: 16px;
-      padding: 14px 0;
-      border-bottom: 1px solid #edf1f5;
-    }
-
-    .item-inspecao:last-child {
-      border-bottom: none;
-    }
-
-    .item-nome {
-      color: #333;
-      font-size: 14px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .item-nome i {
-      color: #2176c7;
-      width: 18px;
-      text-align: center;
-    }
-
-    .item-inspecao select {
-      width: 100%;
-      padding: 10px 12px;
-      border: 2px solid #d0dce8;
-      border-radius: 8px;
-      background: #f0f4f8;
-      color: #0d2b4e;
-      outline: none;
-      cursor: pointer;
-    }
-
-    .item-inspecao select:focus {
-      border-color: #2176c7;
-    }
-
-    .acoes {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin-top: 24px;
-    }
-
-    .btn {
-      border: none;
-      border-radius: 8px;
-      padding: 12px 20px;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      transition: background 0.2s;
-    }
-
-    .btn-salvar {
-      color: #fff;
-      background: #2176c7;
-    }
-
-    .btn-salvar:hover {
-      background: #1a5fa3;
-    }
-
-    .btn-limpar {
-      color: #0d2b4e;
-      background: #e5edf5;
-    }
-
-    .btn-limpar:hover {
-      background: #d5e1ed;
-    }
-
-    .mensagem {
-      display: none;
-      align-items: center;
-      gap: 8px;
-      padding: 12px 14px;
-      margin-top: 18px;
-      border-radius: 8px;
-      font-size: 14px;
-    }
-
-    .mensagem.sucesso {
-      color: #1e8449;
-      background: #eafaf1;
-      border: 1px solid #a9dfbf;
-    }
-
-    .mensagem.erro {
-      color: #a93226;
-      background: #fcebea;
-      border: 1px solid #f5b7b1;
-    }
-
-    .sem-registros {
-      display: none;
-      padding: 14px;
-      border-radius: 10px;
-      background: #fff7e6;
-      border: 1px solid #ffd591;
-      color: #9a6b00;
-      font-size: 14px;
-      margin-bottom: 18px;
-    }
-
-    footer {
-      color: rgba(255, 255, 255, 0.5);
-      font-size: 13px;
-      text-align: center;
-      padding-bottom: 10px;
-    }
-
-    @media (max-width: 620px) {
-      .box {
-        padding: 24px 16px;
+      .btn-voltar:hover {
+        background: rgba(255, 255, 255, 0.28);
       }
 
       .logo {
-        font-size: 16px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #fff;
+        font-size: 22px;
+        font-weight: 700;
+        text-align: right;
       }
 
-      .item-inspecao {
-        grid-template-columns: 1fr;
+      .logo i {
+        color: #f0c040;
+      }
+
+      .box {
+        width: 100%;
+        max-width: 900px;
+        background: #fff;
+        border-radius: 16px;
+        padding: 36px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      }
+
+      .box h1 {
+        font-size: 22px;
+        color: #0d2b4e;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
         gap: 10px;
       }
 
-      .acoes .btn {
+      .sub {
+        color: #555;
+        font-size: 14px;
+        line-height: 1.6;
+        margin-bottom: 28px;
+      }
+
+      .grupo {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-bottom: 22px;
+      }
+
+      .grupo label {
+        color: #0d2b4e;
+        font-size: 14px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .grupo select,
+      .grupo textarea {
         width: 100%;
-      }
-    }
-  </style>
-</head>
-<body>
-
-  <header class="header">
-    <a href="index.html" class="btn-voltar">
-      <i class="fa-solid fa-arrow-left"></i>
-      Voltar
-    </a>
-
-    <div class="logo">
-      <i class="fa-solid fa-screwdriver-wrench"></i>
-      <span>Manutenção Integrada</span>
-    </div>
-  </header>
-
-  <main class="box">
-    <h1>
-      <i class="fa-solid fa-clipboard-check"></i>
-      Inspeção
-    </h1>
-
-    <p class="sub">
-      Selecione o equipamento, preencha o status de cada item e registre as observações da inspeção.
-    </p>
-
-    <div id="sem-registros" class="sem-registros">
-      Nenhum equipamento cadastrado. Cadastre equipamentos no painel administrativo para realizar inspeções.
-    </div>
-
-    <div class="grupo">
-      <label for="sel-equipamento">
-        <i class="fa-solid fa-gears"></i>
-        Selecionar equipamento
-      </label>
-      <select id="sel-equipamento">
-        <option value="">— Selecione o Equipamento —</option>
-      </select>
-    </div>
-
-    <h2 class="secao-titulo">
-      <i class="fa-solid fa-list-check"></i>
-      Lista de itens de inspeção
-    </h2>
-
-    <section id="lista-inspecao"></section>
-
-    <div class="grupo" style="margin-top: 24px;">
-      <label for="observacoes">
-        <i class="fa-solid fa-comment"></i>
-        Observações
-      </label>
-      <textarea
-        id="observacoes"
-        placeholder="Digite aqui as observações encontradas durante a inspeção..."
-      ></textarea>
-    </div>
-
-    <div class="acoes">
-      <button type="button" class="btn btn-salvar" onclick="salvarInspecao()">
-        <i class="fa-solid fa-floppy-disk"></i>
-        Salvar inspeção
-      </button>
-
-      <button type="button" class="btn btn-limpar" onclick="limparFormulario()">
-        <i class="fa-solid fa-eraser"></i>
-        Limpar
-      </button>
-    </div>
-
-    <div id="mensagem-sucesso" class="mensagem sucesso">
-      <i class="fa-solid fa-circle-check"></i>
-      Inspeção salva com sucesso!
-    </div>
-
-    <div id="mensagem-erro" class="mensagem erro">
-      <i class="fa-solid fa-circle-exclamation"></i>
-      Selecione um equipamento e preencha todos os status.
-    </div>
-  </main>
-
-  <footer>
-    &copy; 2026 Manutenção Integrada — Todos os direitos reservados
-  </footer>
-
-  <script>
-    const ITENS_INSPECAO = [
-      { id: 'nivel-lubrificante', nome: 'Nível do lubrificante', icone: 'fa-droplet' },
-      { id: 'vazamentos', nome: 'Existência de vazamentos', icone: 'fa-triangle-exclamation' },
-      { id: 'mangueiras', nome: 'Estado das mangueiras', icone: 'fa-grip-lines' },
-      { id: 'conexoes', nome: 'Estado das conexões', icone: 'fa-link' },
-      { id: 'rudos', nome: 'Ruídos anormais', icone: 'fa-volume-high' },
-      { id: 'vibracoes', nome: 'Vibrações anormais', icone: 'fa-wave-square' },
-      { id: 'temperatura', nome: 'Temperatura de operação', icone: 'fa-temperature-half' },
-      { id: 'condicao-geral', nome: 'Condição geral do equipamento', icone: 'fa-gear' }
-    ];
-
-    function getDados() {
-      const dados = localStorage.getItem('lubeasy_dados');
-
-      if (!dados) return [];
-
-      try {
-        const resultado = JSON.parse(dados);
-        return Array.isArray(resultado) ? resultado : [];
-      } catch (erro) {
-        console.error('Erro ao carregar equipamentos:', erro);
-        return [];
-      }
-    }
-
-    function getInspecoes() {
-      const inspecoes = localStorage.getItem('lubeasy_inspecoes');
-
-      if (!inspecoes) return [];
-
-      try {
-        const resultado = JSON.parse(inspecoes);
-        return Array.isArray(resultado) ? resultado : [];
-      } catch (erro) {
-        console.error('Erro ao carregar inspeções:', erro);
-        return [];
-      }
-    }
-
-    function gerarId() {
-      return '_' + Math.random().toString(36).substring(2, 11);
-    }
-
-    function mostrarMensagem(tipo) {
-      document.getElementById('mensagem-sucesso').style.display = tipo === 'sucesso' ? 'flex' : 'none';
-      document.getElementById('mensagem-erro').style.display = tipo === 'erro' ? 'flex' : 'none';
-    }
-
-    function limparMensagens() {
-      document.getElementById('mensagem-sucesso').style.display = 'none';
-      document.getElementById('mensagem-erro').style.display = 'none';
-    }
-
-    function carregarEquipamentos() {
-      const seletor = document.getElementById('sel-equipamento');
-      const semRegistros = document.getElementById('sem-registros');
-      const dados = getDados();
-
-      const equipamentos = [
-        ...new Set(
-          dados
-            .map(function (dado) {
-              return dado.equipamento;
-            })
-            .filter(Boolean)
-        )
-      ];
-
-      if (equipamentos.length === 0) {
-        semRegistros.style.display = 'block';
-        seletor.disabled = true;
-        return;
+        border: 2px solid #d0dce8;
+        border-radius: 10px;
+        padding: 12px 14px;
+        color: #0d2b4e;
+        background: #f0f4f8;
+        font-size: 14px;
+        outline: none;
+        transition: border-color 0.2s;
       }
 
-      equipamentos.forEach(function (equipamento) {
-        const opcao = document.createElement('option');
-        opcao.value = equipamento;
-        opcao.textContent = equipamento;
-        seletor.appendChild(opcao);
-      });
-    }
-
-    function criarListaInspecao() {
-      const lista = document.getElementById('lista-inspecao');
-
-      ITENS_INSPECAO.forEach(function (item) {
-        const linha = document.createElement('div');
-        linha.className = 'item-inspecao';
-
-        const nome = document.createElement('div');
-        nome.className = 'item-nome';
-
-        const icone = document.createElement('i');
-        icone.className = 'fa-solid ' + item.icone;
-
-        const texto = document.createElement('span');
-        texto.textContent = item.nome;
-
-        nome.appendChild(icone);
-        nome.appendChild(texto);
-
-        const seletor = document.createElement('select');
-        seletor.id = 'status-' + item.id;
-        seletor.setAttribute('aria-label', 'Status: ' + item.nome);
-
-        const opcoes = [
-          { value: '', label: '— Selecione —' },
-          { value: 'Conforme', label: 'Conforme' },
-          { value: 'Não conforme', label: 'Não conforme' },
-          { value: 'Não se aplica', label: 'Não se aplica' }
-        ];
-
-        opcoes.forEach(function (opcaoDados) {
-          const opcao = document.createElement('option');
-          opcao.value = opcaoDados.value;
-          opcao.textContent = opcaoDados.label;
-          seletor.appendChild(opcao);
-        });
-
-        linha.appendChild(nome);
-        linha.appendChild(seletor);
-        lista.appendChild(linha);
-      });
-    }
-
-    function limparFormulario() {
-      document.getElementById('sel-equipamento').value = '';
-      document.getElementById('observacoes').value = '';
-
-      ITENS_INSPECAO.forEach(function (item) {
-        document.getElementById('status-' + item.id).value = '';
-      });
-
-      limparMensagens();
-    }
-
-    function salvarInspecao() {
-      const equipamento = document.getElementById('sel-equipamento').value;
-      const observacoes = document.getElementById('observacoes').value.trim();
-
-      if (!equipamento) {
-        mostrarMensagem('erro');
-        return;
+      .grupo select:focus,
+      .grupo textarea:focus {
+        border-color: #2176c7;
       }
 
-      const status = {};
-      let todosPreenchidos = true;
+      .grupo textarea {
+        min-height: 110px;
+        resize: vertical;
+      }
 
-      ITENS_INSPECAO.forEach(function (item) {
-        const valor = document.getElementById('status-' + item.id).value;
+      .secao-titulo {
+        color: #0d2b4e;
+        font-size: 17px;
+        margin: 28px 0 14px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #f0f4f8;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
 
-        if (!valor) {
-          todosPreenchidos = false;
+      .item-inspecao {
+        display: grid;
+        grid-template-columns: 1fr 220px;
+        align-items: center;
+        gap: 16px;
+        padding: 14px 0;
+        border-bottom: 1px solid #edf1f5;
+      }
+
+      .item-inspecao:last-child {
+        border-bottom: none;
+      }
+
+      .item-nome {
+        color: #333;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .item-nome i {
+        color: #2176c7;
+        width: 18px;
+        text-align: center;
+      }
+
+      .item-inspecao select {
+        width: 100%;
+        padding: 10px 12px;
+        border: 2px solid #d0dce8;
+        border-radius: 8px;
+        background: #f0f4f8;
+        color: #0d2b4e;
+        outline: none;
+        cursor: pointer;
+      }
+
+      .item-inspecao select:focus {
+        border-color: #2176c7;
+      }
+
+      .acoes {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-top: 24px;
+      }
+
+      .btn {
+        border: none;
+        border-radius: 8px;
+        padding: 12px 20px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: background 0.2s;
+      }
+
+      .btn-salvar {
+        color: #fff;
+        background: #2176c7;
+      }
+
+      .btn-salvar:hover {
+        background: #1a5fa3;
+      }
+
+      .btn-limpar {
+        color: #0d2b4e;
+        background: #e5edf5;
+      }
+
+      .btn-limpar:hover {
+        background: #d5e1ed;
+      }
+
+      .mensagem {
+        display: none;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 14px;
+        margin-top: 18px;
+        border-radius: 8px;
+        font-size: 14px;
+      }
+
+      .mensagem.sucesso {
+        color: #1e8449;
+        background: #eafaf1;
+        border: 1px solid #a9dfbf;
+      }
+
+      .mensagem.erro {
+        color: #a93226;
+        background: #fcebea;
+        border: 1px solid #f5b7b1;
+      }
+
+      .sem-registros {
+        display: none;
+        padding: 14px;
+        border-radius: 10px;
+        background: #fff7e6;
+        border: 1px solid #ffd591;
+        color: #9a6b00;
+        font-size: 14px;
+        margin-bottom: 18px;
+      }
+
+      footer {
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 13px;
+        text-align: center;
+        padding-bottom: 10px;
+      }
+      .btn-carteira {
+        border: none;
+        border-radius: 8px;
+        padding: 10px 14px;
+        background: #f0c040;
+        color: #0d2b4e;
+        font-size: 13px;
+        font-weight: 700;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+      }
+
+      .btn-carteira:hover {
+        background: #ffd45c;
+      }
+
+      .painel-carteira {
+        display: none;
+        width: 100%;
+        max-width: 1100px;
+        background: #fff;
+        border-radius: 16px;
+        padding: 30px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      }
+
+      .painel-carteira.ativo {
+        display: block;
+      }
+
+      .painel-carteira h2 {
+        color: #0d2b4e;
+        margin-bottom: 8px;
+      }
+
+      .carteira-subtitulo {
+        color: #555;
+        font-size: 14px;
+        margin-bottom: 22px;
+      }
+
+      .form-carteira {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+        margin-bottom: 24px;
+      }
+
+      .form-carteira .campo {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .form-carteira .campo-largo {
+        grid-column: 1 / -1;
+      }
+
+      .form-carteira label {
+        color: #0d2b4e;
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      .form-carteira input,
+      .form-carteira textarea,
+      .form-carteira select,
+      .filtros-carteira input,
+      .filtros-carteira select,
+      .auth-carteira input {
+        width: 100%;
+        padding: 11px 12px;
+        border: 2px solid #d0dce8;
+        border-radius: 8px;
+        background: #f7f9fb;
+        color: #0d2b4e;
+        outline: none;
+      }
+
+      .form-carteira textarea {
+        min-height: 80px;
+        resize: vertical;
+      }
+
+      .filtros-carteira {
+        display: grid;
+        grid-template-columns: 1fr 1fr auto;
+        gap: 12px;
+        margin-bottom: 18px;
+      }
+
+      .tabela-carteira {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+      }
+
+      .tabela-carteira th,
+      .tabela-carteira td {
+        padding: 11px 8px;
+        border-bottom: 1px solid #e5edf5;
+        text-align: left;
+        vertical-align: top;
+      }
+
+      .tabela-carteira th {
+        background: #0d2b4e;
+        color: #fff;
+      }
+
+      .badge-criticidade {
+        display: inline-block;
+        padding: 5px 8px;
+        border-radius: 6px;
+        font-size: 11px;
+        font-weight: 700;
+      }
+
+      .badge-baixa {
+        background: #d5f5e3;
+        color: #1e8449;
+      }
+
+      .badge-media {
+        background: #fcf3cf;
+        color: #9a7d0a;
+      }
+
+      .badge-alta {
+        background: #fdebd0;
+        color: #af601a;
+      }
+
+      .badge-critica {
+        background: #f5b7b1;
+        color: #922b21;
+      }
+
+      .btn-excluir-nota {
+        border: none;
+        border-radius: 6px;
+        padding: 7px 9px;
+        background: #f5b7b1;
+        color: #922b21;
+        cursor: pointer;
+      }
+
+      .btn-voltar-inspecao {
+        margin-bottom: 18px;
+        background: #e5edf5;
+        color: #0d2b4e;
+      }
+
+      .auth-carteira {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 10;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        background: rgba(0, 0, 0, 0.55);
+      }
+
+      .auth-carteira.ativo {
+        display: flex;
+      }
+
+      .auth-caixa {
+        width: 100%;
+        max-width: 430px;
+        background: #fff;
+        border-radius: 14px;
+        padding: 28px;
+      }
+
+      .auth-caixa h2 {
+        color: #0d2b4e;
+        margin-bottom: 8px;
+      }
+
+      .auth-caixa p {
+        color: #666;
+        font-size: 13px;
+        margin-bottom: 18px;
+      }
+
+      .auth-carteira input {
+        margin-bottom: 12px;
+      }
+
+      .auth-acoes {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 8px;
+      }
+
+      .auth-mensagem {
+        display: none;
+        color: #a93226;
+        background: #fcebea;
+        border: 1px solid #f5b7b1;
+        border-radius: 7px;
+        padding: 9px;
+        margin-bottom: 12px;
+        font-size: 13px;
+      }
+
+      .auth-mensagem.exibir {
+        display: block;
+      }
+
+      .sem-notas {
+        display: none;
+        color: #777;
+        padding: 18px 0;
+      }
+
+      @media (max-width: 760px) {
+        .header {
+          flex-wrap: wrap;
         }
 
-        status[item.id] = {
-          item: item.nome,
-          valor: valor
-        };
-      });
+        .form-carteira,
+        .filtros-carteira {
+          grid-template-columns: 1fr;
+        }
 
-      if (!todosPreenchidos) {
-        mostrarMensagem('erro');
-        return;
+        .form-carteira .campo-largo {
+          grid-column: auto;
+        }
+
+        .tabela-carteira {
+          display: block;
+          overflow-x: auto;
+          white-space: nowrap;
+        }
+      }
+      @media (max-width: 620px) {
+        .box {
+          padding: 24px 16px;
+        }
+
+        .logo {
+          font-size: 16px;
+        }
+
+        .item-inspecao {
+          grid-template-columns: 1fr;
+          gap: 10px;
+        }
+
+        .acoes .btn {
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="header">
+      <a href="index.html" class="btn-voltar">
+        <i class="fa-solid fa-arrow-left"></i>
+        Voltar
+      </a>
+
+      <div class="logo">
+        <i class="fa-solid fa-screwdriver-wrench"></i>
+        <span>Manutenção Integrada</span>
+      </div>
+
+      <button type="button" class="btn-carteira" onclick="abrirCarteira()">
+        <i class="fa-solid fa-briefcase"></i>
+        Minha Carteira
+      </button>
+    </header>
+
+    <main class="box">
+      <h1>
+        <i class="fa-solid fa-clipboard-check"></i>
+        Inspeção
+      </h1>
+
+      <p class="sub">
+        Selecione o equipamento, preencha o status de cada item e registre as
+        observações da inspeção.
+      </p>
+
+      <div id="sem-registros" class="sem-registros">
+        Nenhum equipamento cadastrado. Cadastre equipamentos no painel
+        administrativo para realizar inspeções.
+      </div>
+
+      <div class="grupo">
+        <label for="sel-equipamento">
+          <i class="fa-solid fa-gears"></i>
+          Selecionar equipamento
+        </label>
+        <select id="sel-equipamento">
+          <option value="">— Selecione o Equipamento —</option>
+        </select>
+      </div>
+
+      <h2 class="secao-titulo">
+        <i class="fa-solid fa-list-check"></i>
+        Lista de itens de inspeção
+      </h2>
+
+      <section id="lista-inspecao"></section>
+
+      <div class="grupo" style="margin-top: 24px">
+        <label for="observacoes">
+          <i class="fa-solid fa-comment"></i>
+          Observações
+        </label>
+        <textarea
+          id="observacoes"
+          placeholder="Digite aqui as observações encontradas durante a inspeção..."
+        ></textarea>
+      </div>
+
+      <div class="acoes">
+        <button type="button" class="btn btn-salvar" onclick="salvarInspecao()">
+          <i class="fa-solid fa-floppy-disk"></i>
+          Salvar inspeção
+        </button>
+
+        <button
+          type="button"
+          class="btn btn-limpar"
+          onclick="limparFormulario()"
+        >
+          <i class="fa-solid fa-eraser"></i>
+          Limpar
+        </button>
+      </div>
+
+      <div id="mensagem-sucesso" class="mensagem sucesso">
+        <i class="fa-solid fa-circle-check"></i>
+        Inspeção salva com sucesso!
+      </div>
+
+      <div id="mensagem-erro" class="mensagem erro">
+        <i class="fa-solid fa-circle-exclamation"></i>
+        Selecione um equipamento e preencha todos os status.
+      </div>
+    </main>
+    <section id="painel-carteira" class="painel-carteira">
+      <button
+        type="button"
+        class="btn btn-voltar-inspecao"
+        onclick="fecharCarteira()"
+      >
+        <i class="fa-solid fa-arrow-left"></i>
+        Voltar para Inspeção
+      </button>
+
+      <h2>
+        <i class="fa-solid fa-briefcase"></i>
+        Minha Carteira
+      </h2>
+
+      <p class="carteira-subtitulo">
+        Cadastre e acompanhe suas notas de manutenção.
+      </p>
+
+      <form id="form-nota-carteira" class="form-carteira">
+        <div class="campo">
+          <label for="numero-nota">Número da nota</label>
+          <input type="text" id="numero-nota" required />
+        </div>
+
+        <div class="campo">
+          <label for="equipamento-nota">Equipamento</label>
+          <input type="text" id="equipamento-nota" required />
+        </div>
+
+        <div class="campo campo-largo">
+          <label for="descricao-nota">Descrição</label>
+          <textarea id="descricao-nota" required></textarea>
+        </div>
+
+        <div class="campo">
+          <label for="data-criacao">Data de criação</label>
+          <input type="date" id="data-criacao" required />
+        </div>
+
+        <div class="campo">
+          <label for="data-execucao">Data de execução planejada</label>
+          <input type="date" id="data-execucao" required />
+        </div>
+
+        <div class="campo">
+          <label for="criticidade-nota">Criticidade</label>
+          <select id="criticidade-nota" required>
+            <option value="">Selecione</option>
+            <option value="Baixa">Baixa</option>
+            <option value="Média">Média</option>
+            <option value="Alta">Alta</option>
+            <option value="Crítica">Crítica</option>
+          </select>
+        </div>
+
+        <div class="acoes">
+          <button type="submit" class="btn btn-salvar">
+            <i class="fa-solid fa-plus"></i>
+            Cadastrar nota
+          </button>
+        </div>
+      </form>
+
+      <h3 class="secao-titulo">
+        <i class="fa-solid fa-filter"></i>
+        Filtrar notas
+      </h3>
+
+      <div class="filtros-carteira">
+        <select id="filtro-criticidade">
+          <option value="">Todas as criticidades</option>
+          <option value="Baixa">Baixa</option>
+          <option value="Média">Média</option>
+          <option value="Alta">Alta</option>
+          <option value="Crítica">Crítica</option>
+        </select>
+
+        <input
+          type="search"
+          id="filtro-equipamento"
+          placeholder="Filtrar por equipamento"
+        />
+
+        <button
+          type="button"
+          class="btn btn-limpar"
+          onclick="limparFiltrosCarteira()"
+        >
+          <i class="fa-solid fa-eraser"></i>
+          Limpar filtros
+        </button>
+      </div>
+
+      <div class="sem-notas" id="sem-notas">Nenhuma nota encontrada.</div>
+
+      <div style="overflow-x: auto">
+        <table class="tabela-carteira">
+          <thead>
+            <tr>
+              <th>Número</th>
+              <th>Descrição</th>
+              <th>Equipamento</th>
+              <th>Criação</th>
+              <th>Execução planejada</th>
+              <th>Criticidade</th>
+              <th>Ação</th>
+            </tr>
+          </thead>
+          <tbody id="lista-notas-carteira"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <div id="auth-carteira" class="auth-carteira">
+      <div class="auth-caixa">
+        <h2>
+          <i class="fa-solid fa-user-lock"></i>
+          Acesso à Minha Carteira
+        </h2>
+
+        <p>Faça login ou cadastre o acesso do inspetor.</p>
+
+        <div id="auth-mensagem" class="auth-mensagem"></div>
+
+        <input
+          type="text"
+          id="carteira-usuario"
+          placeholder="Usuário"
+          autocomplete="username"
+        />
+
+        <input
+          type="password"
+          id="carteira-senha"
+          placeholder="Senha"
+          autocomplete="current-password"
+        />
+
+        <div class="auth-acoes">
+          <button
+            type="button"
+            class="btn btn-salvar"
+            onclick="entrarCarteira()"
+          >
+            <i class="fa-solid fa-right-to-bracket"></i>
+            Entrar
+          </button>
+
+          <button
+            type="button"
+            class="btn btn-limpar"
+            onclick="cadastrarCarteira()"
+          >
+            <i class="fa-solid fa-user-plus"></i>
+            Fazer cadastro
+          </button>
+
+          <button
+            type="button"
+            class="btn btn-limpar"
+            onclick="fecharAuthCarteira()"
+          >
+            Cancelar
+          </button>
+        </div>
+      </div>
+    </div>
+    <footer>
+      &copy; 2026 Manutenção Integrada — Todos os direitos reservados
+    </footer>
+
+    <script>
+      const ITENS_INSPECAO = [
+        {
+          id: "nivel-lubrificante",
+          nome: "Nível do lubrificante",
+          icone: "fa-droplet",
+        },
+        {
+          id: "vazamentos",
+          nome: "Existência de vazamentos",
+          icone: "fa-triangle-exclamation",
+        },
+        {
+          id: "mangueiras",
+          nome: "Estado das mangueiras",
+          icone: "fa-grip-lines",
+        },
+        {
+          id: "conexoes",
+          nome: "Estado das conexões",
+          icone: "fa-link",
+        },
+        {
+          id: "rudos",
+          nome: "Ruídos anormais",
+          icone: "fa-volume-high",
+        },
+        {
+          id: "vibracoes",
+          nome: "Vibrações anormais",
+          icone: "fa-wave-square",
+        },
+        {
+          id: "temperatura",
+          nome: "Temperatura de operação",
+          icone: "fa-temperature-half",
+        },
+        {
+          id: "condicao-geral",
+          nome: "Condição geral do equipamento",
+          icone: "fa-gear",
+        },
+      ];
+
+      const CHAVE_USUARIOS_CARTEIRA = "lubeasy_carteira_usuarios";
+      const CHAVE_NOTAS_CARTEIRA = "lubeasy_carteira_notas";
+      const CHAVE_SESSAO_CARTEIRA = "lubeasy_carteira_sessao";
+
+      function lerLista(chave) {
+        try {
+          const dados = JSON.parse(localStorage.getItem(chave) || "[]");
+          return Array.isArray(dados) ? dados : [];
+        } catch (erro) {
+          console.error("Erro ao ler dados:", erro);
+          return [];
+        }
       }
 
-      const inspecoes = getInspecoes();
+      function gerarId() {
+        return "_" + Math.random().toString(36).substring(2, 11);
+      }
 
-      inspecoes.push({
-        id: gerarId(),
-        equipamento: equipamento,
-        data: new Date().toISOString(),
-        status: status,
-        observacoes: observacoes
-      });
+      function getDados() {
+        return lerLista("lubeasy_dados");
+      }
 
-      localStorage.setItem('lubeasy_inspecoes', JSON.stringify(inspecoes));
+      function getInspecoes() {
+        return lerLista("lubeasy_inspecoes");
+      }
 
-      mostrarMensagem('sucesso');
-      limparFormulario();
-    }
+      function mostrarMensagem(tipo) {
+        document.getElementById("mensagem-sucesso").style.display =
+          tipo === "sucesso" ? "flex" : "none";
 
-    criarListaInspecao();
-    carregarEquipamentos();
-  </script>
+        document.getElementById("mensagem-erro").style.display =
+          tipo === "erro" ? "flex" : "none";
+      }
 
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', function () {
-        navigator.serviceWorker.register('./serviceworker.js')
-          .then(function (registro) {
-            console.log('Service Worker registrado:', registro);
-          })
-          .catch(function (erro) {
-            console.error('Erro ao registrar o Service Worker:', erro);
+      function limparMensagens() {
+        document.getElementById("mensagem-sucesso").style.display = "none";
+        document.getElementById("mensagem-erro").style.display = "none";
+      }
+
+      function carregarEquipamentos() {
+        const seletor = document.getElementById("sel-equipamento");
+        const semRegistros = document.getElementById("sem-registros");
+
+        const equipamentos = [
+          ...new Set(
+            getDados()
+              .map(function (dado) {
+                return dado.equipamento;
+              })
+              .filter(Boolean),
+          ),
+        ];
+
+        if (equipamentos.length === 0) {
+          semRegistros.style.display = "block";
+          seletor.disabled = true;
+          return;
+        }
+
+        equipamentos.forEach(function (equipamento) {
+          const opcao = document.createElement("option");
+          opcao.value = equipamento;
+          opcao.textContent = equipamento;
+          seletor.appendChild(opcao);
+        });
+      }
+
+      function criarListaInspecao() {
+        const lista = document.getElementById("lista-inspecao");
+
+        ITENS_INSPECAO.forEach(function (item) {
+          const linha = document.createElement("div");
+          linha.className = "item-inspecao";
+
+          const nome = document.createElement("div");
+          nome.className = "item-nome";
+
+          const icone = document.createElement("i");
+          icone.className = "fa-solid " + item.icone;
+
+          const texto = document.createElement("span");
+          texto.textContent = item.nome;
+
+          nome.appendChild(icone);
+          nome.appendChild(texto);
+
+          const seletor = document.createElement("select");
+          seletor.id = "status-" + item.id;
+
+          [
+            { value: "", label: "— Selecione —" },
+            { value: "Conforme", label: "Conforme" },
+            { value: "Não conforme", label: "Não conforme" },
+            { value: "Não se aplica", label: "Não se aplica" },
+          ].forEach(function (itemOpcao) {
+            const opcao = document.createElement("option");
+            opcao.value = itemOpcao.value;
+            opcao.textContent = itemOpcao.label;
+            seletor.appendChild(opcao);
           });
-      });
-    }
-  </script>
 
-</body>
+          linha.appendChild(nome);
+          linha.appendChild(seletor);
+          lista.appendChild(linha);
+        });
+      }
+
+      function limparFormulario() {
+        document.getElementById("sel-equipamento").value = "";
+        document.getElementById("observacoes").value = "";
+
+        ITENS_INSPECAO.forEach(function (item) {
+          document.getElementById("status-" + item.id).value = "";
+        });
+
+        limparMensagens();
+      }
+
+      function salvarInspecao() {
+        const equipamento = document.getElementById("sel-equipamento").value;
+        const observacoes = document.getElementById("observacoes").value.trim();
+
+        if (!equipamento) {
+          mostrarMensagem("erro");
+          return;
+        }
+
+        const status = {};
+        let todosPreenchidos = true;
+
+        ITENS_INSPECAO.forEach(function (item) {
+          const valor = document.getElementById("status-" + item.id).value;
+
+          if (!valor) {
+            todosPreenchidos = false;
+          }
+
+          status[item.id] = {
+            item: item.nome,
+            valor: valor,
+          };
+        });
+
+        if (!todosPreenchidos) {
+          mostrarMensagem("erro");
+          return;
+        }
+
+        const inspecoes = getInspecoes();
+
+        inspecoes.push({
+          id: gerarId(),
+          equipamento: equipamento,
+          data: new Date().toISOString(),
+          status: status,
+          observacoes: observacoes,
+        });
+
+        localStorage.setItem("lubeasy_inspecoes", JSON.stringify(inspecoes));
+
+        mostrarMensagem("sucesso");
+        limparFormulario();
+      }
+
+      function abrirCarteira() {
+        const sessao = localStorage.getItem(CHAVE_SESSAO_CARTEIRA);
+
+        if (!sessao) {
+          document.getElementById("auth-carteira").classList.add("ativo");
+          document.getElementById("carteira-usuario").focus();
+          return;
+        }
+
+        mostrarPainelCarteira();
+      }
+
+      function fecharAuthCarteira() {
+        document.getElementById("auth-carteira").classList.remove("ativo");
+        document.getElementById("auth-mensagem").classList.remove("exibir");
+      }
+
+      function mostrarErroAuth(texto) {
+        const mensagem = document.getElementById("auth-mensagem");
+        mensagem.textContent = texto;
+        mensagem.classList.add("exibir");
+      }
+
+      function cadastrarCarteira() {
+        const usuario = document
+          .getElementById("carteira-usuario")
+          .value.trim();
+
+        const senha = document.getElementById("carteira-senha").value;
+
+        if (usuario.length < 3 || senha.length < 4) {
+          mostrarErroAuth(
+            "O usuário deve ter pelo menos 3 caracteres e a senha pelo menos 4.",
+          );
+          return;
+        }
+
+        const usuarios = lerLista(CHAVE_USUARIOS_CARTEIRA);
+
+        const existe = usuarios.some(function (item) {
+          return item.usuario.toLowerCase() === usuario.toLowerCase();
+        });
+
+        if (existe) {
+          mostrarErroAuth("Este usuário já está cadastrado.");
+          return;
+        }
+
+        usuarios.push({
+          id: gerarId(),
+          usuario: usuario,
+          senha: senha,
+          criadoEm: new Date().toISOString(),
+        });
+
+        localStorage.setItem(CHAVE_USUARIOS_CARTEIRA, JSON.stringify(usuarios));
+
+        localStorage.setItem(CHAVE_SESSAO_CARTEIRA, usuario);
+
+        fecharAuthCarteira();
+        mostrarPainelCarteira();
+      }
+
+      function entrarCarteira() {
+        const usuario = document
+          .getElementById("carteira-usuario")
+          .value.trim();
+
+        const senha = document.getElementById("carteira-senha").value;
+
+        const usuarioValido = lerLista(CHAVE_USUARIOS_CARTEIRA).find(
+          function (item) {
+            return (
+              item.usuario.toLowerCase() === usuario.toLowerCase() &&
+              item.senha === senha
+            );
+          },
+        );
+
+        if (!usuarioValido) {
+          mostrarErroAuth("Usuário ou senha incorretos.");
+          return;
+        }
+
+        localStorage.setItem(CHAVE_SESSAO_CARTEIRA, usuarioValido.usuario);
+
+        fecharAuthCarteira();
+        mostrarPainelCarteira();
+      }
+
+      function mostrarPainelCarteira() {
+        document.querySelector("main.box").style.display = "none";
+        document.getElementById("painel-carteira").classList.add("ativo");
+        definirDataCriacao();
+        renderizarNotasCarteira();
+      }
+
+      function fecharCarteira() {
+        document.getElementById("painel-carteira").classList.remove("ativo");
+        document.querySelector("main.box").style.display = "block";
+      }
+
+      function definirDataCriacao() {
+        const campo = document.getElementById("data-criacao");
+
+        if (!campo.value) {
+          campo.value = new Date().toISOString().slice(0, 10);
+        }
+      }
+
+      function formatarData(data) {
+        if (!data) return "-";
+
+        const partes = data.split("-");
+
+        if (partes.length !== 3) return data;
+
+        return partes[2] + "/" + partes[1] + "/" + partes[0];
+      }
+
+      function classeCriticidade(criticidade) {
+        return criticidade
+          .toLowerCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "");
+      }
+
+      function escaparTexto(valor) {
+        const div = document.createElement("div");
+        div.textContent = valor || "";
+        return div.innerHTML;
+      }
+
+      function cadastrarNotaCarteira(evento) {
+        evento.preventDefault();
+
+        const usuario = localStorage.getItem(CHAVE_SESSAO_CARTEIRA);
+
+        if (!usuario) {
+          abrirCarteira();
+          return;
+        }
+
+        const nota = {
+          id: gerarId(),
+          usuario: usuario,
+          numero: document.getElementById("numero-nota").value.trim(),
+          descricao: document.getElementById("descricao-nota").value.trim(),
+          equipamento: document.getElementById("equipamento-nota").value.trim(),
+          dataCriacao: document.getElementById("data-criacao").value,
+          dataExecucao: document.getElementById("data-execucao").value,
+          criticidade: document.getElementById("criticidade-nota").value,
+          criadaEm: new Date().toISOString(),
+        };
+
+        const notas = lerLista(CHAVE_NOTAS_CARTEIRA);
+        notas.push(nota);
+
+        localStorage.setItem(CHAVE_NOTAS_CARTEIRA, JSON.stringify(notas));
+
+        document.getElementById("form-nota-carteira").reset();
+        definirDataCriacao();
+        renderizarNotasCarteira();
+
+        alert("Nota cadastrada com sucesso!");
+      }
+
+      function renderizarNotasCarteira() {
+        const usuario = localStorage.getItem(CHAVE_SESSAO_CARTEIRA);
+        const lista = document.getElementById("lista-notas-carteira");
+        const semNotas = document.getElementById("sem-notas");
+
+        const filtroCriticidade =
+          document.getElementById("filtro-criticidade").value;
+
+        const filtroEquipamento = document
+          .getElementById("filtro-equipamento")
+          .value.trim()
+          .toLowerCase();
+
+        const notas = lerLista(CHAVE_NOTAS_CARTEIRA)
+          .filter(function (nota) {
+            return nota.usuario === usuario;
+          })
+          .filter(function (nota) {
+            return !filtroCriticidade || nota.criticidade === filtroCriticidade;
+          })
+          .filter(function (nota) {
+            return (
+              !filtroEquipamento ||
+              nota.equipamento.toLowerCase().includes(filtroEquipamento)
+            );
+          });
+
+        lista.innerHTML = "";
+        semNotas.style.display = notas.length ? "none" : "block";
+
+        notas.forEach(function (nota) {
+          const linha = document.createElement("tr");
+
+          linha.innerHTML = `
+            <td>${escaparTexto(nota.numero)}</td>
+            <td>${escaparTexto(nota.descricao)}</td>
+            <td>${escaparTexto(nota.equipamento)}</td>
+            <td>${formatarData(nota.dataCriacao)}</td>
+            <td>${formatarData(nota.dataExecucao)}</td>
+            <td>
+              <span class="badge-criticidade badge-${classeCriticidade(
+                nota.criticidade,
+              )}">
+                ${escaparTexto(nota.criticidade)}
+              </span>
+            </td>
+            <td>
+              <button
+                type="button"
+                class="btn-excluir-nota"
+                onclick="excluirNotaCarteira('${nota.id}')"
+                title="Excluir nota"
+              >
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            </td>
+          `;
+
+          lista.appendChild(linha);
+        });
+      }
+
+      function excluirNotaCarteira(id) {
+        if (!confirm("Deseja realmente excluir esta nota?")) {
+          return;
+        }
+
+        const notas = lerLista(CHAVE_NOTAS_CARTEIRA).filter(function (nota) {
+          return nota.id !== id;
+        });
+
+        localStorage.setItem(CHAVE_NOTAS_CARTEIRA, JSON.stringify(notas));
+
+        renderizarNotasCarteira();
+      }
+
+      function limparFiltrosCarteira() {
+        document.getElementById("filtro-criticidade").value = "";
+        document.getElementById("filtro-equipamento").value = "";
+        renderizarNotasCarteira();
+      }
+
+      document
+        .getElementById("form-nota-carteira")
+        .addEventListener("submit", cadastrarNotaCarteira);
+
+      document
+        .getElementById("filtro-criticidade")
+        .addEventListener("change", renderizarNotasCarteira);
+
+      document
+        .getElementById("filtro-equipamento")
+        .addEventListener("input", renderizarNotasCarteira);
+
+      criarListaInspecao();
+      carregarEquipamentos();
+    </script>
+
+    <script>
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", function () {
+          navigator.serviceWorker
+            .register("./serviceworker.js")
+            .then(function (registro) {
+              console.log("Service Worker registrado:", registro);
+            })
+            .catch(function (erro) {
+              console.error("Erro ao registrar o Service Worker:", erro);
+            });
+        });
+      }
+    </script>
+  </body>
 </html>
