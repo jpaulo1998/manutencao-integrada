@@ -4,18 +4,9 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+    <title>Manutenção Integrada - Inspeção</title>
+
     <link rel="manifest" href="./manifest.json" />
-    <link rel="icon" href="./icon.svg" type="image/svg+xml" />
-
-    <meta name="theme-color" content="#2176c7" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta
-      name="apple-mobile-web-app-status-bar-style"
-      content="black-translucent"
-    />
-    <meta name="apple-mobile-web-app-title" content="Manutenção Integrada" />
-
-    <title>Manutenção Integrada — Inspeção</title>
 
     <link
       rel="stylesheet"
@@ -23,978 +14,834 @@
     />
 
     <style>
+      :root {
+        --azul-escuro: #123e68;
+        --azul: #2176c7;
+        --azul-claro: #edf5fc;
+        --texto: #1d2a36;
+        --texto-suave: #6b7b8b;
+        --borda: #dce5ed;
+        --fundo: #f5f8fb;
+        --branco: #ffffff;
+        --verde: #238b58;
+        --vermelho: #c43d32;
+      }
+
       * {
+        box-sizing: border-box;
         margin: 0;
         padding: 0;
-        box-sizing: border-box;
-        font-family: "Segoe UI", sans-serif;
+        font-family: "Segoe UI", Arial, sans-serif;
       }
 
       body {
-        background: linear-gradient(135deg, #0d2b4e, #1a4f8a);
         min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        padding: 20px;
-        gap: 24px;
+        padding: 18px;
+        color: var(--texto);
+        background: linear-gradient(135deg, #0d2e4d, #1c5c91);
       }
 
-      .header {
+      button,
+      input,
+      select,
+      textarea {
+        font: inherit;
+      }
+
+      button {
+        cursor: pointer;
+      }
+
+      .topo {
         width: 100%;
-        max-width: 900px;
+        max-width: 1180px;
+        margin: 0 auto 16px;
         display: flex;
         align-items: center;
         justify-content: space-between;
         gap: 16px;
       }
-      .cabecalho-carteira {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 16px;
-        margin-bottom: 8px;
-      }
 
-      .cabecalho-carteira h2 {
-        margin-bottom: 0;
-      }
-
-      .btn-sair-carteira {
+      .marca {
         color: #fff;
-        background: #c0392b;
-      }
-
-      .btn-sair-carteira:hover {
-        background: #a93226;
-      }
-
-      @media (max-width: 620px) {
-        .cabecalho-carteira {
-          align-items: stretch;
-          flex-direction: column;
-        }
-
-        .btn-sair-carteira {
-          width: 100%;
-        }
-      }
-      .btn-voltar {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        color: #fff;
-        text-decoration: none;
-        font-size: 14px;
-        background: rgba(255, 255, 255, 0.15);
-        padding: 8px 16px;
-        border-radius: 8px;
-        transition: background 0.2s;
-      }
-
-      .btn-voltar:hover {
-        background: rgba(255, 255, 255, 0.28);
-      }
-
-      .logo {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        color: #fff;
-        font-size: 22px;
+        font-size: 20px;
         font-weight: 700;
-        text-align: right;
       }
 
-      .logo i {
-        color: #f0c040;
+      .marca i {
+        margin-right: 8px;
+        color: #f4c542;
       }
 
-      .box {
+      .pagina {
         width: 100%;
-        max-width: 900px;
-        background: #fff;
+        max-width: 1180px;
+        margin: 0 auto;
+      }
+
+      .painel {
+        padding: 28px;
         border-radius: 16px;
-        padding: 36px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        background: var(--branco);
+        box-shadow: 0 8px 28px rgba(0, 0, 0, 0.16);
       }
 
-      .box h1 {
-        font-size: 22px;
-        color: #0d2b4e;
-        margin-bottom: 8px;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-      }
-
-      .sub {
-        color: #555;
-        font-size: 14px;
-        line-height: 1.6;
-        margin-bottom: 28px;
-      }
-
-      .grupo {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-        margin-bottom: 22px;
-      }
-
-      .grupo label {
-        color: #0d2b4e;
-        font-size: 14px;
-        font-weight: 600;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-      }
-
-      .grupo select,
-      .grupo textarea {
-        width: 100%;
-        border: 2px solid #d0dce8;
-        border-radius: 10px;
-        padding: 12px 14px;
-        color: #0d2b4e;
-        background: #f0f4f8;
-        font-size: 14px;
-        outline: none;
-        transition: border-color 0.2s;
-      }
-
-      .grupo select:focus,
-      .grupo textarea:focus {
-        border-color: #2176c7;
-      }
-
-      .grupo textarea {
-        min-height: 110px;
-        resize: vertical;
-      }
-
-      .secao-titulo {
-        color: #0d2b4e;
-        font-size: 17px;
-        margin: 28px 0 14px;
-        padding-bottom: 10px;
-        border-bottom: 2px solid #f0f4f8;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-      }
-
-      .item-inspecao {
-        display: grid;
-        grid-template-columns: 1fr 220px;
-        align-items: center;
-        gap: 16px;
-        padding: 14px 0;
-        border-bottom: 1px solid #edf1f5;
-      }
-
-      .item-inspecao:last-child {
-        border-bottom: none;
-      }
-
-      .item-nome {
-        color: #333;
-        font-size: 14px;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-      }
-
-      .item-nome i {
-        color: #2176c7;
-        width: 18px;
-        text-align: center;
-      }
-
-      .item-inspecao select {
-        width: 100%;
-        padding: 10px 12px;
-        border: 2px solid #d0dce8;
-        border-radius: 8px;
-        background: #f0f4f8;
-        color: #0d2b4e;
-        outline: none;
-        cursor: pointer;
-      }
-
-      .item-inspecao select:focus {
-        border-color: #2176c7;
-      }
-
-      .acoes {
-        display: flex;
-        gap: 12px;
-        flex-wrap: wrap;
-        margin-top: 24px;
-      }
-
-      .btn {
-        border: none;
-        border-radius: 8px;
-        padding: 12px 20px;
-        font-size: 14px;
-        font-weight: 600;
-        cursor: pointer;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        transition: background 0.2s;
-      }
-
-      .btn-salvar {
-        color: #fff;
-        background: #2176c7;
-      }
-
-      .btn-salvar:hover {
-        background: #1a5fa3;
-      }
-
-      .btn-limpar {
-        color: #0d2b4e;
-        background: #e5edf5;
-      }
-
-      .btn-limpar:hover {
-        background: #d5e1ed;
-      }
-
-      .mensagem {
-        display: none;
-        align-items: center;
-        gap: 8px;
-        padding: 12px 14px;
-        margin-top: 18px;
-        border-radius: 8px;
-        font-size: 14px;
-      }
-
-      .mensagem.sucesso {
-        color: #1e8449;
-        background: #eafaf1;
-        border: 1px solid #a9dfbf;
-      }
-
-      .mensagem.erro {
-        color: #a93226;
-        background: #fcebea;
-        border: 1px solid #f5b7b1;
-      }
-
-      .sem-registros {
-        display: none;
-        padding: 14px;
-        border-radius: 10px;
-        background: #fff7e6;
-        border: 1px solid #ffd591;
-        color: #9a6b00;
-        font-size: 14px;
-        margin-bottom: 18px;
-      }
-
-      footer {
-        color: rgba(255, 255, 255, 0.5);
-        font-size: 13px;
-        text-align: center;
-        padding-bottom: 10px;
-      }
-      .btn-carteira {
-        border: none;
-        border-radius: 8px;
-        padding: 10px 14px;
-        background: #f0c040;
-        color: #0d2b4e;
-        font-size: 13px;
-        font-weight: 700;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        gap: 7px;
-      }
-
-      .btn-carteira:hover {
-        background: #ffd45c;
+      /*
+       * IMPORTANTE:
+       * A consulta pública começa visível.
+       * Ao abrir a carteira, recebe a classe "oculto".
+       */
+      .painel-principal.oculto {
+        display: none !important;
       }
 
       .painel-carteira {
         display: none;
-        width: 100%;
-        max-width: 1100px;
-        background: #fff;
-        border-radius: 16px;
-        padding: 30px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
       }
 
       .painel-carteira.ativo {
         display: block;
       }
 
-      .painel-carteira h2 {
-        color: #0d2b4e;
-        margin-bottom: 8px;
+      h1 {
+        color: var(--azul-escuro);
+        font-size: 23px;
       }
 
-      .carteira-subtitulo {
-        color: #555;
-        font-size: 14px;
-        margin-bottom: 22px;
+      .subtitulo {
+        margin-top: 6px;
+        color: var(--texto-suave);
+        font-size: 13px;
+        line-height: 1.5;
       }
 
-      .form-carteira {
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-height: 40px;
+        padding: 10px 16px;
+        border: 0;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      .btn-voltar {
+        color: #fff;
+        background: rgba(255, 255, 255, 0.15);
+        text-decoration: none;
+      }
+
+      .btn-carteira {
+        color: var(--azul-escuro);
+        background: #f4c542;
+      }
+
+      .btn-principal {
+        color: #fff;
+        background: var(--azul);
+      }
+
+      .btn-secundario {
+        color: var(--azul-escuro);
+        background: #e8f0f7;
+      }
+
+      .btn-perigo {
+        color: #fff;
+        background: var(--vermelho);
+      }
+
+      .btn-pequeno {
+        min-height: 34px;
+        padding: 7px 11px;
+        font-size: 12px;
+      }
+
+      .secao {
+        margin-top: 22px;
+        padding: 20px;
+        border: 1px solid var(--borda);
+        border-radius: 12px;
+        background: #fbfdff;
+      }
+
+      .secao-titulo {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 16px;
+        color: var(--azul-escuro);
+        font-size: 16px;
+      }
+
+      .grade {
         display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 16px;
-        margin-bottom: 24px;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 14px 16px;
       }
 
-      .form-carteira .campo {
+      .campo {
         display: flex;
         flex-direction: column;
         gap: 6px;
       }
 
-      .form-carteira .campo-largo {
+      .campo-largo {
         grid-column: 1 / -1;
       }
 
-      .form-carteira label {
-        color: #0d2b4e;
+      label {
+        color: var(--azul-escuro);
         font-size: 13px;
         font-weight: 700;
       }
 
-      .form-carteira input,
-      .form-carteira textarea,
-      .form-carteira select,
-      .filtros-carteira input,
-      .filtros-carteira select,
-      .auth-carteira input {
+      input,
+      select,
+      textarea {
         width: 100%;
-        padding: 11px 12px;
-        border: 2px solid #d0dce8;
+        min-height: 40px;
+        padding: 9px 11px;
+        border: 1px solid var(--borda);
         border-radius: 8px;
-        background: #f7f9fb;
-        color: #0d2b4e;
         outline: none;
+        color: var(--texto);
+        background: #fff;
+        font-size: 14px;
       }
 
-      .form-carteira textarea {
+      input:focus,
+      select:focus,
+      textarea:focus {
+        border-color: var(--azul);
+        box-shadow: 0 0 0 3px rgba(33, 118, 199, 0.1);
+      }
+
+      textarea {
         min-height: 80px;
         resize: vertical;
       }
 
-      .filtros-carteira {
-        display: grid;
-        grid-template-columns: 1fr 1fr auto;
-        gap: 12px;
-        margin-bottom: 18px;
+      .acoes {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-top: 22px;
       }
 
-      .tabela-carteira {
-        width: 100%;
-        border-collapse: collapse;
+      .resultado {
+        display: none;
+        margin-top: 16px;
+        padding: 14px;
+        border-left: 3px solid var(--azul);
+        border-radius: 7px;
+        background: #fff;
         font-size: 13px;
       }
 
-      .tabela-carteira th,
-      .tabela-carteira td {
-        padding: 11px 8px;
-        border-bottom: 1px solid #e5edf5;
-        text-align: left;
-        vertical-align: top;
+      .resultado.ativo {
+        display: block;
       }
 
-      .tabela-carteira th {
-        background: #0d2b4e;
-        color: #fff;
+      .resultado h3 {
+        margin-bottom: 10px;
+        color: var(--azul-escuro);
       }
 
-      .badge-criticidade {
-        display: inline-block;
-        padding: 5px 8px;
-        border-radius: 6px;
-        font-size: 11px;
+      .linha-resultado {
+        display: grid;
+        grid-template-columns: 220px 1fr;
+        gap: 10px;
+        padding: 8px 0;
+        border-bottom: 1px solid #edf1f4;
+      }
+
+      .guias {
+        display: flex;
+        gap: 4px;
+        margin: 22px 0;
+        border-bottom: 1px solid var(--borda);
+      }
+
+      .guia {
+        padding: 11px 17px;
+        border: 0;
+        border-bottom: 3px solid transparent;
+        color: var(--texto-suave);
+        background: transparent;
+        font-size: 13px;
         font-weight: 700;
       }
 
-      .badge-baixa {
-        background: #d5f5e3;
-        color: #1e8449;
+      .guia.ativa {
+        border-bottom-color: var(--azul);
+        color: var(--azul);
+        background: var(--azul-claro);
       }
 
-      .badge-media {
-        background: #fcf3cf;
-        color: #9a7d0a;
-      }
-
-      .badge-alta {
-        background: #fdebd0;
-        color: #af601a;
-      }
-
-      .badge-critica {
-        background: #f5b7b1;
-        color: #922b21;
-      }
-
-      .btn-excluir-nota {
-        border: none;
-        border-radius: 6px;
-        padding: 7px 9px;
-        background: #f5b7b1;
-        color: #922b21;
-        cursor: pointer;
-      }
-
-      .btn-voltar-inspecao {
-        margin-bottom: 18px;
-        background: #e5edf5;
-        color: #0d2b4e;
-      }
-
-      .auth-carteira {
+      .conteudo-guia {
         display: none;
+      }
+
+      .conteudo-guia.ativo {
+        display: block;
+      }
+
+      .status {
+        margin-bottom: 14px;
+        padding: 11px 13px;
+        border-radius: 7px;
+        font-size: 13px;
+      }
+
+      .status.sucesso {
+        color: #17633d;
+        border: 1px solid #a9ddbf;
+        background: #e7f7ee;
+      }
+
+      .status.erro {
+        color: #9f2d25;
+        border: 1px solid #efb2ad;
+        background: #fcebea;
+      }
+
+      .tabela-container {
+        overflow-x: auto;
+        margin-top: 15px;
+        border: 1px solid var(--borda);
+        border-radius: 8px;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 12px;
+      }
+
+      th,
+      td {
+        padding: 10px;
+        text-align: left;
+        border-bottom: 1px solid #e9eef3;
+      }
+
+      th {
+        color: #fff;
+        background: var(--azul-escuro);
+        white-space: nowrap;
+      }
+
+      .vazio {
+        padding: 20px;
+        color: var(--texto-suave);
+        text-align: center;
+      }
+
+      .historico-item {
+        padding: 12px 0;
+        border-bottom: 1px solid var(--borda);
+        font-size: 13px;
+        line-height: 1.7;
+      }
+
+      .modal {
         position: fixed;
         inset: 0;
-        z-index: 10;
+        z-index: 20;
+        display: none;
         align-items: center;
         justify-content: center;
         padding: 20px;
         background: rgba(0, 0, 0, 0.55);
       }
 
-      .auth-carteira.ativo {
+      .modal.ativo {
         display: flex;
       }
 
-      .auth-caixa {
+      .modal-caixa {
         width: 100%;
-        max-width: 430px;
+        max-width: 410px;
+        padding: 25px;
+        border-radius: 13px;
         background: #fff;
-        border-radius: 14px;
-        padding: 28px;
       }
 
-      .auth-caixa h2 {
-        color: #0d2b4e;
+      .modal-caixa h2 {
         margin-bottom: 8px;
+        color: var(--azul-escuro);
+        font-size: 20px;
       }
 
-      .auth-caixa p {
-        color: #666;
+      .modal-caixa p {
+        margin-bottom: 16px;
+        color: var(--texto-suave);
         font-size: 13px;
-        margin-bottom: 18px;
       }
 
-      .auth-carteira input {
-        margin-bottom: 12px;
+      .modal-caixa input {
+        margin-bottom: 10px;
       }
 
-      .auth-acoes {
+      .modal-acoes {
         display: flex;
-        gap: 10px;
         flex-wrap: wrap;
+        gap: 8px;
         margin-top: 8px;
       }
 
-      .auth-mensagem {
+      .modal-erro {
         display: none;
-        color: #a93226;
-        background: #fcebea;
-        border: 1px solid #f5b7b1;
-        border-radius: 7px;
+        margin-bottom: 10px;
         padding: 9px;
-        margin-bottom: 12px;
-        font-size: 13px;
+        border-radius: 6px;
+        color: #9f2d25;
+        background: #fcebea;
+        font-size: 12px;
       }
 
-      .auth-mensagem.exibir {
+      .modal-erro.ativo {
         display: block;
       }
 
-      .sem-notas {
-        display: none;
-        color: #777;
-        padding: 18px 0;
+      footer {
+        padding: 15px 0;
+        color: rgba(255, 255, 255, 0.6);
+        text-align: center;
+        font-size: 12px;
       }
 
-      @media (max-width: 760px) {
-        .header {
+      @media (max-width: 800px) {
+        .grade {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+
+      @media (max-width: 600px) {
+        body {
+          padding: 10px;
+        }
+
+        .topo {
           flex-wrap: wrap;
         }
 
-        .form-carteira,
-        .filtros-carteira {
+        .marca {
+          order: -1;
+          width: 100%;
+          text-align: center;
+          font-size: 17px;
+        }
+
+        .grade {
           grid-template-columns: 1fr;
         }
 
-        .form-carteira .campo-largo {
+        .campo-largo {
           grid-column: auto;
         }
 
-        .tabela-carteira {
-          display: block;
-          overflow-x: auto;
-          white-space: nowrap;
-        }
-      }
-      @media (max-width: 620px) {
-        .box {
-          padding: 24px 16px;
-        }
-
-        .logo {
-          font-size: 16px;
-        }
-
-        .item-inspecao {
-          grid-template-columns: 1fr;
-          gap: 10px;
+        .painel {
+          padding: 20px 14px;
         }
 
         .acoes .btn {
           width: 100%;
         }
-      }
-      .consulta-inspecao {
-        margin-bottom: 28px;
-        padding: 20px;
-        border-radius: 12px;
-        background: #f7f9fb;
-        border: 1px solid #dce6ef;
-      }
 
-      .resultado-consulta-inspecao {
-        display: none;
-        margin-top: 16px;
-        padding: 18px;
-        border-radius: 10px;
-        background: #fff;
-        border-left: 4px solid #2176c7;
-        color: #0d2b4e;
-      }
+        .guias {
+          flex-direction: column;
+          border-bottom: 0;
+        }
 
-      .resultado-consulta-inspecao.ativo {
-        display: block;
-      }
+        .guia {
+          width: 100%;
+          border: 1px solid var(--borda);
+          border-radius: 7px;
+        }
 
-      .resultado-consulta-inspecao h3 {
-        margin-bottom: 14px;
-        color: #0d2b4e;
-      }
-
-      .resultado-consulta-inspecao .item-resultado {
-        display: grid;
-        grid-template-columns: 240px 1fr;
-        gap: 12px;
-        padding: 9px 0;
-        border-bottom: 1px solid #e5edf5;
-        font-size: 14px;
-      }
-
-      .resultado-consulta-inspecao .item-resultado:last-child {
-        border-bottom: none;
-      }
-
-      .resultado-consulta-inspecao strong {
-        color: #0d2b4e;
-      }
-
-      @media (max-width: 620px) {
-        .resultado-consulta-inspecao .item-resultado {
+        .linha-resultado {
           grid-template-columns: 1fr;
-          gap: 4px;
+          gap: 3px;
         }
       }
     </style>
   </head>
+
   <body>
-    <header class="header">
-      <a href="index.html" class="btn-voltar">
+    <header class="topo">
+      <a class="btn btn-voltar" href="index.html">
         <i class="fa-solid fa-arrow-left"></i>
         Voltar
       </a>
 
-      <div class="logo">
+      <div class="marca">
         <i class="fa-solid fa-screwdriver-wrench"></i>
-        <span>Manutenção Integrada</span>
+        Manutenção Integrada
       </div>
 
-      <button type="button" class="btn-carteira" onclick="abrirCarteira()">
+      <button class="btn btn-carteira" type="button" onclick="abrirCarteira()">
         <i class="fa-solid fa-briefcase"></i>
         Minha Carteira
       </button>
     </header>
 
-    <main class="box">
-      <h1>
-        <i class="fa-solid fa-clipboard-check"></i>
-        Inspeção
-      </h1>
-      <section class="consulta-inspecao">
-        <h2 class="secao-titulo">
-          <i class="fa-solid fa-magnifying-glass"></i>
-          Consulta de informações do equipamento
-        </h2>
+    <main class="pagina">
+      <!--
+        CONSULTA PÚBLICA
 
-        <div class="grupo">
-          <label for="consulta-tag-inspecao">
-            <i class="fa-solid fa-tag"></i>
-            Selecionar TAG do equipamento
-          </label>
+        Esta classe "painel-principal" é necessária para que
+        o painel seja ocultado quando a carteira for aberta.
+      -->
+      <section id="painel-principal" class="painel painel-principal">
+        <h1>
+          <i class="fa-solid fa-clipboard-check"></i>
+          Consulta de inspeção
+        </h1>
 
-          <select id="consulta-tag-inspecao">
-            <option value="">— Selecione a TAG —</option>
-          </select>
-        </div>
+        <p class="subtitulo">
+          Consulte as informações técnicas atuais por meio da TAG.
+        </p>
 
-        <div
-          id="resultado-consulta-inspecao"
-          class="resultado-consulta-inspecao"
-        >
-          <p>Selecione uma TAG para consultar as informações.</p>
-        </div>
+        <section class="secao">
+          <h2 class="secao-titulo">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            Consulta pública
+          </h2>
+
+          <div class="campo">
+            <label for="consulta-tag"> TAG do equipamento </label>
+
+            <select id="consulta-tag">
+              <option value="">Carregando TAGs...</option>
+            </select>
+          </div>
+
+          <div id="resultado-consulta" class="resultado ativo">
+            Selecione uma TAG para consultar as informações atuais.
+          </div>
+        </section>
       </section>
 
-      <p class="sub">
-        Selecione o equipamento, preencha o status de cada item e registre as
-        observações da inspeção.
-      </p>
+      <!--
+        MINHA CARTEIRA
 
-      <div id="sem-registros" class="sem-registros">
-        Nenhum equipamento cadastrado. Cadastre equipamentos no painel
-        administrativo para realizar inspeções.
-      </div>
-
-      <div class="grupo">
-        <label for="sel-equipamento">
-          <i class="fa-solid fa-gears"></i>
-          Selecionar equipamento
-        </label>
-        <select id="sel-equipamento">
-          <option value="">— Selecione o Equipamento —</option>
-        </select>
-      </div>
-
-      <h2 class="secao-titulo">
-        <i class="fa-solid fa-list-check"></i>
-        Lista de itens de inspeção
-      </h2>
-
-      <section id="lista-inspecao"></section>
-
-      <div class="grupo" style="margin-top: 24px">
-        <label for="observacoes">
-          <i class="fa-solid fa-comment"></i>
-          Observações
-        </label>
-        <textarea
-          id="observacoes"
-          placeholder="Digite aqui as observações encontradas durante a inspeção..."
-        ></textarea>
-      </div>
-
-      <div class="acoes">
-        <button type="button" class="btn btn-salvar" onclick="salvarInspecao()">
-          <i class="fa-solid fa-floppy-disk"></i>
-          Salvar inspeção
-        </button>
-
-        <button
-          type="button"
-          class="btn btn-limpar"
-          onclick="limparFormulario()"
-        >
-          <i class="fa-solid fa-eraser"></i>
-          Limpar
-        </button>
-      </div>
-
-      <div id="mensagem-sucesso" class="mensagem sucesso">
-        <i class="fa-solid fa-circle-check"></i>
-        Inspeção salva com sucesso!
-      </div>
-
-      <div id="mensagem-erro" class="mensagem erro">
-        <i class="fa-solid fa-circle-exclamation"></i>
-        Selecione um equipamento e preencha todos os status.
-      </div>
-    </main>
-    <section id="painel-carteira" class="painel-carteira">
-      <button
-        type="button"
-        class="btn btn-voltar-inspecao"
-        onclick="fecharCarteira()"
-      >
-        <i class="fa-solid fa-arrow-left"></i>
-        Voltar para Inspeção
-      </button>
-
-      <div class="cabecalho-carteira">
-        <h2>
+        Este painel começa oculto e só aparece depois do login.
+        Ele contém somente Notas e Informações técnicas.
+      -->
+      <section id="painel-carteira" class="painel painel-carteira">
+        <h1>
           <i class="fa-solid fa-briefcase"></i>
           Minha Carteira
-        </h2>
+        </h1>
 
-        <button
-          type="button"
-          class="btn btn-sair-carteira"
-          onclick="sairCarteira()"
-        >
-          <i class="fa-solid fa-right-from-bracket"></i>
-          Sair da conta
-        </button>
-      </div>
+        <p class="subtitulo">Gerencie suas notas e informações técnicas.</p>
 
-      <p class="carteira-subtitulo">
-        Cadastre e acompanhe suas notas de manutenção.
-      </p>
-
-      <form id="form-nota-carteira" class="form-carteira">
-        <div class="campo">
-          <label for="numero-nota">Número da nota</label>
-          <input type="text" id="numero-nota" required />
-        </div>
-
-        <div class="campo">
-          <label for="equipamento-nota">Equipamento</label>
-
-          <select id="equipamento-nota" required disabled>
-            <option value="">Carregando equipamentos...</option>
-          </select>
-        </div>
-        <div class="campo">
-          <label for="tag-nota">TAG do equipamento</label>
-
-          <input
-            type="text"
-            id="tag-nota"
-            placeholder="Ex: TAG-001"
-            required
-            maxlength="50"
-          />
-        </div>
-        <div class="campo campo-largo">
-          <label for="descricao-nota">Descrição</label>
-          <textarea id="descricao-nota" required></textarea>
-        </div>
-
-        <div class="campo">
-          <label for="data-criacao">Data de criação</label>
-          <input type="date" id="data-criacao" required />
-        </div>
-
-        <div class="campo">
-          <label for="data-execucao">Data de execução planejada</label>
-          <input type="date" id="data-execucao" required />
-        </div>
-
-        <div class="campo">
-          <label for="criticidade-nota">Criticidade</label>
-          <select id="criticidade-nota" required>
-            <option value="">Selecione</option>
-            <option value="Baixa">Baixa</option>
-            <option value="Média">Média</option>
-            <option value="Alta">Alta</option>
-            <option value="Crítica">Crítica</option>
-          </select>
-        </div>
-
-        <div class="acoes">
-          <button type="submit" class="btn btn-salvar">
-            <i class="fa-solid fa-plus"></i>
-            Cadastrar nota
-          </button>
-        </div>
-      </form>
-      <h3 class="secao-titulo">
-        <i class="fa-solid fa-clipboard-list"></i>
-        Informações técnicas da inspeção
-      </h3>
-
-      <form id="form-informacoes-inspecao" class="form-carteira">
-        <div class="campo">
-          <label for="tag-info-inspecao"> TAG do equipamento </label>
-
-          <input
-            type="text"
-            id="tag-info-inspecao"
-            placeholder="Ex.: TAG-001"
-            maxlength="50"
-            required
-          />
-        </div>
-
-        <div class="campo">
-          <label for="folga-cubo-helice"> Folga do cubo de hélice </label>
-
-          <input
-            type="text"
-            id="folga-cubo-helice"
-            placeholder="Ex.: 2 mm"
-            required
-          />
-        </div>
-
-        <div class="campo">
-          <label for="ancora-inspecao"> Âncora </label>
-
-          <input
-            type="text"
-            id="ancora-inspecao"
-            placeholder="Informe a condição ou medida"
-            required
-          />
-        </div>
-
-        <div class="campo">
-          <label for="lamina-inspecao"> Lâmina </label>
-
-          <input
-            type="text"
-            id="lamina-inspecao"
-            placeholder="Informe a condição ou medida"
-            required
-          />
-        </div>
-
-        <div class="campo">
-          <label for="escarificador-inspecao"> Escarificador </label>
-
-          <input
-            type="text"
-            id="escarificador-inspecao"
-            placeholder="Informe a condição ou medida"
-            required
-          />
-        </div>
-
-        <div class="campo">
-          <label for="pontas-inspecao"> Pontas </label>
-
-          <input
-            type="text"
-            id="pontas-inspecao"
-            placeholder="Informe a condição ou medida"
-            required
-          />
-        </div>
-
-        <div class="campo">
-          <label for="laminas-viradas"> As lâminas já foram viradas? </label>
-
-          <select id="laminas-viradas" required>
-            <option value="">Selecione</option>
-            <option value="Sim">Sim</option>
-            <option value="Não">Não</option>
-            <option value="N/A">N/A</option>
-          </select>
-        </div>
-
-        <div class="acoes">
-          <button type="submit" class="btn btn-salvar">
-            <i class="fa-solid fa-floppy-disk"></i>
-            Salvar informações
+        <div class="acoes" style="justify-content: flex-start">
+          <button
+            type="button"
+            class="btn btn-secundario btn-pequeno"
+            onclick="fecharCarteira()"
+          >
+            <i class="fa-solid fa-arrow-left"></i>
+            Voltar para consulta
           </button>
 
           <button
             type="button"
-            class="btn btn-limpar"
-            id="limpar-informacoes-inspecao"
+            class="btn btn-perigo btn-pequeno"
+            onclick="sairCarteira()"
           >
-            <i class="fa-solid fa-eraser"></i>
-            Limpar
+            <i class="fa-solid fa-right-from-bracket"></i>
+            Sair
           </button>
         </div>
-      </form>
-      <h3 class="secao-titulo">
-        <i class="fa-solid fa-filter"></i>
-        Filtrar notas
-      </h3>
 
-      <div class="filtros-carteira">
-        <select id="filtro-criticidade">
-          <option value="">Todas as criticidades</option>
-          <option value="Baixa">Baixa</option>
-          <option value="Média">Média</option>
-          <option value="Alta">Alta</option>
-          <option value="Crítica">Crítica</option>
-        </select>
+        <div class="guias">
+          <button
+            id="guia-notas"
+            class="guia ativa"
+            type="button"
+            onclick="mostrarGuia('notas')"
+          >
+            <i class="fa-solid fa-file-lines"></i>
+            Notas
+          </button>
 
-        <input
-          type="search"
-          id="filtro-equipamento"
-          placeholder="Filtrar por equipamento"
-        />
+          <button
+            id="guia-tecnicas"
+            class="guia"
+            type="button"
+            onclick="mostrarGuia('tecnicas')"
+          >
+            <i class="fa-solid fa-clipboard-check"></i>
+            Informações técnicas
+          </button>
+        </div>
 
-        <button
-          type="button"
-          class="btn btn-limpar"
-          onclick="limparFiltrosCarteira()"
-        >
-          <i class="fa-solid fa-eraser"></i>
-          Limpar filtros
-        </button>
-      </div>
+        <!-- GUIA NOTAS -->
+        <div id="conteudo-notas" class="conteudo-guia ativo">
+          <section class="secao">
+            <h2 class="secao-titulo">
+              <i class="fa-solid fa-file-circle-plus"></i>
+              Nova nota
+            </h2>
 
-      <div class="sem-notas" id="sem-notas">Nenhuma nota encontrada.</div>
+            <form id="form-nota">
+              <div class="grade">
+                <div class="campo">
+                  <label for="numero-nota"> Número da nota </label>
 
-      <div style="overflow-x: auto">
-        <table class="tabela-carteira">
-          <thead>
-            <tr>
-              <th>Número</th>
-              <th>Descrição</th>
-              <th>Equipamento</th>
-              <th>TAG</th>
-              <th>Criação</th>
-              <th>Execução planejada</th>
-              <th>Criticidade</th>
-              <th>Ação</th>
-            </tr>
-          </thead>
-          <tbody id="lista-notas-carteira"></tbody>
-        </table>
-      </div>
-    </section>
+                  <input id="numero-nota" type="text" required />
+                </div>
 
-    <div id="auth-carteira" class="auth-carteira">
-      <div class="auth-caixa">
+                <div class="campo">
+                  <label for="equipamento-nota"> Equipamento </label>
+
+                  <input id="equipamento-nota" type="text" required />
+                </div>
+
+                <div class="campo">
+                  <label for="tag-nota">TAG</label>
+
+                  <input
+                    id="tag-nota"
+                    type="text"
+                    required
+                    oninput="this.value = this.value.toUpperCase()"
+                  />
+                </div>
+
+                <div class="campo campo-largo">
+                  <label for="descricao-nota"> Descrição </label>
+
+                  <textarea id="descricao-nota" required></textarea>
+                </div>
+
+                <div class="campo">
+                  <label for="data-criacao"> Data de criação </label>
+
+                  <input id="data-criacao" type="date" required />
+                </div>
+
+                <div class="campo">
+                  <label for="data-execucao"> Execução planejada </label>
+
+                  <input id="data-execucao" type="date" required />
+                </div>
+
+                <div class="campo">
+                  <label for="criticidade-nota"> Criticidade </label>
+
+                  <select id="criticidade-nota" required>
+                    <option value="">Selecione</option>
+
+                    <option value="Baixa">Baixa</option>
+
+                    <option value="Média">Média</option>
+
+                    <option value="Alta">Alta</option>
+
+                    <option value="Crítica">Crítica</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="acoes">
+                <button class="btn btn-principal" type="submit">
+                  <i class="fa-solid fa-plus"></i>
+                  Cadastrar nota
+                </button>
+              </div>
+            </form>
+          </section>
+
+          <h2 class="secao-titulo" style="margin-top: 26px">
+            <i class="fa-solid fa-list"></i>
+            Notas cadastradas
+          </h2>
+
+          <div id="sem-notas" class="vazio">Nenhuma nota cadastrada.</div>
+
+          <div class="tabela-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Número</th>
+                  <th>Descrição</th>
+                  <th>Equipamento</th>
+                  <th>TAG</th>
+                  <th>Criação</th>
+                  <th>Execução</th>
+                  <th>Criticidade</th>
+                  <th>Ação</th>
+                </tr>
+              </thead>
+
+              <tbody id="lista-notas"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- GUIA INFORMAÇÕES TÉCNICAS -->
+        <div id="conteudo-tecnicas" class="conteudo-guia">
+          <div id="status-autorizacao" class="status erro">
+            Faça login para verificar a autorização.
+          </div>
+
+          <section id="area-tecnica" class="secao" style="display: none">
+            <h2 class="secao-titulo">
+              <i class="fa-solid fa-clipboard-check"></i>
+              Informações técnicas
+            </h2>
+
+            <form id="form-tecnico">
+              <div class="grade">
+                <div class="campo campo-largo">
+                  <label for="tag-tecnica"> TAG do equipamento </label>
+
+                  <input
+                    id="tag-tecnica"
+                    type="text"
+                    placeholder="Digite a TAG do equipamento"
+                    autocomplete="off"
+                    autocapitalize="characters"
+                    spellcheck="false"
+                    required
+                  />
+                </div>
+
+                <div class="campo">
+                  <label for="data-inspecao"> Data da inspeção </label>
+
+                  <input id="data-inspecao" type="date" required />
+                </div>
+
+                <div class="campo">
+                  <label for="folga-cubo-helice">
+                    Folga do cubo de hélice
+                  </label>
+
+                  <input id="folga-cubo-helice" type="text" required />
+                </div>
+
+                <div class="campo">
+                  <label for="ancora"> Âncora </label>
+
+                  <input id="ancora" type="text" required />
+                </div>
+
+                <div class="campo">
+                  <label for="lamina"> Lâmina </label>
+
+                  <input id="lamina" type="text" required />
+                </div>
+
+                <div class="campo">
+                  <label for="escarificador"> Escarificador </label>
+
+                  <input id="escarificador" type="text" required />
+                </div>
+
+                <div class="campo">
+                  <label for="pontas"> Pontas </label>
+
+                  <input id="pontas" type="text" required />
+                </div>
+
+                <div class="campo">
+                  <label for="laminas-viradas">
+                    Lâminas já foram viradas?
+                  </label>
+
+                  <select id="laminas-viradas" required>
+                    <option value="">Selecione</option>
+
+                    <option value="Sim">Sim</option>
+
+                    <option value="Não">Não</option>
+
+                    <option value="N/A">N/A</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="acoes">
+                <button
+                  type="button"
+                  class="btn btn-secundario"
+                  onclick="limparTecnico()"
+                >
+                  <i class="fa-solid fa-eraser"></i>
+                  Limpar
+                </button>
+
+                <button
+                  id="btn-apagar-tecnico"
+                  type="button"
+                  class="btn btn-perigo"
+                  onclick="apagarTecnico()"
+                  disabled
+                >
+                  <i class="fa-solid fa-trash"></i>
+                  Apagar atual
+                </button>
+
+                <button type="submit" class="btn btn-principal">
+                  <i class="fa-solid fa-floppy-disk"></i>
+                  Salvar informação técnica
+                </button>
+              </div>
+            </form>
+          </section>
+
+          <section id="area-historico" class="secao" style="display: none">
+            <h2 class="secao-titulo">
+              <i class="fa-solid fa-clock-rotate-left"></i>
+              Histórico da TAG
+            </h2>
+
+            <div id="lista-historico"></div>
+          </section>
+        </div>
+      </section>
+    </main>
+
+    <!-- MODAL DE LOGIN -->
+    <div id="modal-login" class="modal">
+      <div class="modal-caixa">
         <h2>
           <i class="fa-solid fa-user-lock"></i>
-          Acesso à Minha Carteira
+          Acesso à carteira
         </h2>
 
-        <p>Faça login ou cadastre o acesso do inspetor.</p>
+        <p>Entre com seu e-mail e senha para acessar a carteira.</p>
 
-        <div id="auth-mensagem" class="auth-mensagem"></div>
+        <div id="erro-login" class="modal-erro"></div>
 
         <input
-          type="text"
-          id="carteira-usuario"
-          placeholder="Usuário"
-          autocomplete="username"
+          id="email-login"
+          type="email"
+          placeholder="E-mail"
+          autocomplete="email"
         />
 
         <input
+          id="senha-login"
           type="password"
-          id="carteira-senha"
           placeholder="Senha"
           autocomplete="current-password"
         />
 
-        <div class="auth-acoes">
+        <div class="modal-acoes">
           <button
             type="button"
-            class="btn btn-salvar"
+            class="btn btn-principal"
             onclick="entrarCarteira()"
           >
             <i class="fa-solid fa-right-to-bracket"></i>
@@ -1003,882 +850,580 @@
 
           <button
             type="button"
-            class="btn btn-limpar"
+            class="btn btn-secundario"
             onclick="cadastrarCarteira()"
           >
             <i class="fa-solid fa-user-plus"></i>
-            Fazer cadastro
+            Cadastrar
           </button>
 
           <button
             type="button"
-            class="btn btn-limpar"
-            onclick="fecharAuthCarteira()"
+            class="btn btn-secundario"
+            onclick="fecharLogin()"
           >
             Cancelar
           </button>
         </div>
       </div>
     </div>
-    <footer>
-      &copy; 2026 Manutenção Integrada — Todos os direitos reservados
-    </footer>
 
-    <script>
-      const ITENS_INSPECAO = [
-        {
-          id: "nivel-lubrificante",
-          nome: "Nível do lubrificante",
-          icone: "fa-droplet",
-        },
-        {
-          id: "vazamentos",
-          nome: "Existência de vazamentos",
-          icone: "fa-triangle-exclamation",
-        },
-        {
-          id: "mangueiras",
-          nome: "Estado das mangueiras",
-          icone: "fa-grip-lines",
-        },
-        {
-          id: "conexoes",
-          nome: "Estado das conexões",
-          icone: "fa-link",
-        },
-        {
-          id: "rudos",
-          nome: "Ruídos anormais",
-          icone: "fa-volume-high",
-        },
-        {
-          id: "vibracoes",
-          nome: "Vibrações anormais",
-          icone: "fa-wave-square",
-        },
-        {
-          id: "temperatura",
-          nome: "Temperatura de operação",
-          icone: "fa-temperature-half",
-        },
-        {
-          id: "condicao-geral",
-          nome: "Condição geral do equipamento",
-          icone: "fa-gear",
-        },
-      ];
+    <footer>&copy; 2026 Manutenção Integrada</footer>
 
-      const CHAVE_USUARIOS_CARTEIRA = "lubeasy_carteira_usuarios";
-      const CHAVE_NOTAS_CARTEIRA = "lubeasy_carteira_notas";
-      const CHAVE_SESSAO_CARTEIRA = "lubeasy_carteira_sessao";
-
-      function lerLista(chave) {
-        try {
-          const dados = JSON.parse(localStorage.getItem(chave) || "[]");
-          return Array.isArray(dados) ? dados : [];
-        } catch (erro) {
-          console.error("Erro ao ler dados:", erro);
-          return [];
-        }
-      }
-
-      function gerarId() {
-        return "_" + Math.random().toString(36).substring(2, 11);
-      }
-
-      function getDados() {
-        return lerLista("lubeasy_dados");
-      }
-
-      function getInspecoes() {
-        return lerLista("lubeasy_inspecoes");
-      }
-
-      function mostrarMensagem(tipo) {
-        document.getElementById("mensagem-sucesso").style.display =
-          tipo === "sucesso" ? "flex" : "none";
-
-        document.getElementById("mensagem-erro").style.display =
-          tipo === "erro" ? "flex" : "none";
-      }
-
-      function limparMensagens() {
-        document.getElementById("mensagem-sucesso").style.display = "none";
-        document.getElementById("mensagem-erro").style.display = "none";
-      }
-
-      function criarListaInspecao() {
-        const lista = document.getElementById("lista-inspecao");
-
-        ITENS_INSPECAO.forEach(function (item) {
-          const linha = document.createElement("div");
-          linha.className = "item-inspecao";
-
-          const nome = document.createElement("div");
-          nome.className = "item-nome";
-
-          const icone = document.createElement("i");
-          icone.className = "fa-solid " + item.icone;
-
-          const texto = document.createElement("span");
-          texto.textContent = item.nome;
-
-          nome.appendChild(icone);
-          nome.appendChild(texto);
-
-          const seletor = document.createElement("select");
-          seletor.id = "status-" + item.id;
-
-          [
-            { value: "", label: "— Selecione —" },
-            { value: "Conforme", label: "Conforme" },
-            { value: "Não conforme", label: "Não conforme" },
-            { value: "Não se aplica", label: "Não se aplica" },
-          ].forEach(function (itemOpcao) {
-            const opcao = document.createElement("option");
-            opcao.value = itemOpcao.value;
-            opcao.textContent = itemOpcao.label;
-            seletor.appendChild(opcao);
-          });
-
-          linha.appendChild(nome);
-          linha.appendChild(seletor);
-          lista.appendChild(linha);
-        });
-      }
-
-      function limparFormulario() {
-        document.getElementById("sel-equipamento").value = "";
-        document.getElementById("observacoes").value = "";
-
-        ITENS_INSPECAO.forEach(function (item) {
-          document.getElementById("status-" + item.id).value = "";
-        });
-
-        limparMensagens();
-      }
-
-      function salvarInspecao() {
-        const equipamento = document.getElementById("sel-equipamento").value;
-        const observacoes = document.getElementById("observacoes").value.trim();
-
-        if (!equipamento) {
-          mostrarMensagem("erro");
-          return;
-        }
-
-        const status = {};
-        let todosPreenchidos = true;
-
-        ITENS_INSPECAO.forEach(function (item) {
-          const valor = document.getElementById("status-" + item.id).value;
-
-          if (!valor) {
-            todosPreenchidos = false;
-          }
-
-          status[item.id] = {
-            item: item.nome,
-            valor: valor,
-          };
-        });
-
-        if (!todosPreenchidos) {
-          mostrarMensagem("erro");
-          return;
-        }
-
-        const inspecoes = getInspecoes();
-
-        inspecoes.push({
-          id: gerarId(),
-          equipamento: equipamento,
-          data: new Date().toISOString(),
-          status: status,
-          observacoes: observacoes,
-        });
-
-        localStorage.setItem("lubeasy_inspecoes", JSON.stringify(inspecoes));
-
-        mostrarMensagem("sucesso");
-        limparFormulario();
-      }
-
-      function abrirCarteira() {
-        const sessao = localStorage.getItem(CHAVE_SESSAO_CARTEIRA);
-
-        if (!sessao) {
-          document.getElementById("auth-carteira").classList.add("ativo");
-          document.getElementById("carteira-usuario").focus();
-          return;
-        }
-
-        mostrarPainelCarteira();
-      }
-
-      function fecharAuthCarteira() {
-        document.getElementById("auth-carteira").classList.remove("ativo");
-        document.getElementById("auth-mensagem").classList.remove("exibir");
-      }
-
-      function mostrarErroAuth(texto) {
-        const mensagem = document.getElementById("auth-mensagem");
-        mensagem.textContent = texto;
-        mensagem.classList.add("exibir");
-      }
-
-      function cadastrarCarteira() {
-        const usuario = document
-          .getElementById("carteira-usuario")
-          .value.trim();
-
-        const senha = document.getElementById("carteira-senha").value;
-
-        if (usuario.length < 3 || senha.length < 4) {
-          mostrarErroAuth(
-            "O usuário deve ter pelo menos 3 caracteres e a senha pelo menos 4.",
-          );
-          return;
-        }
-
-        const usuarios = lerLista(CHAVE_USUARIOS_CARTEIRA);
-
-        const existe = usuarios.some(function (item) {
-          return item.usuario.toLowerCase() === usuario.toLowerCase();
-        });
-
-        if (existe) {
-          mostrarErroAuth("Este usuário já está cadastrado.");
-          return;
-        }
-
-        usuarios.push({
-          id: gerarId(),
-          usuario: usuario,
-          senha: senha,
-          criadoEm: new Date().toISOString(),
-        });
-
-        localStorage.setItem(CHAVE_USUARIOS_CARTEIRA, JSON.stringify(usuarios));
-
-        localStorage.setItem(CHAVE_SESSAO_CARTEIRA, usuario);
-
-        fecharAuthCarteira();
-        mostrarPainelCarteira();
-      }
-
-      function entrarCarteira() {
-        const usuario = document
-          .getElementById("carteira-usuario")
-          .value.trim();
-
-        const senha = document.getElementById("carteira-senha").value;
-
-        const usuarioValido = lerLista(CHAVE_USUARIOS_CARTEIRA).find(
-          function (item) {
-            return (
-              item.usuario.toLowerCase() === usuario.toLowerCase() &&
-              item.senha === senha
-            );
-          },
-        );
-
-        if (!usuarioValido) {
-          mostrarErroAuth("Usuário ou senha incorretos.");
-          return;
-        }
-
-        localStorage.setItem(CHAVE_SESSAO_CARTEIRA, usuarioValido.usuario);
-
-        fecharAuthCarteira();
-        mostrarPainelCarteira();
-      }
-
-      function mostrarPainelCarteira() {
-        document.querySelector("main.box").style.display = "none";
-        document.getElementById("painel-carteira").classList.add("ativo");
-        definirDataCriacao();
-        renderizarNotasCarteira();
-      }
-
-      function fecharCarteira() {
-        document.getElementById("painel-carteira").classList.remove("ativo");
-        document.querySelector("main.box").style.display = "block";
-      }
-      function sairCarteira() {
-        const confirmou = confirm(
-          "Deseja sair da conta? Suas notas continuarão salvas.",
-        );
-
-        if (!confirmou) {
-          return;
-        }
-
-        localStorage.removeItem(CHAVE_SESSAO_CARTEIRA);
-
-        document.getElementById("painel-carteira").classList.remove("ativo");
-        document.querySelector("main.box").style.display = "block";
-
-        document.getElementById("carteira-usuario").value = "";
-        document.getElementById("carteira-senha").value = "";
-
-        document.getElementById("form-nota-carteira").reset();
-        document.getElementById("lista-notas-carteira").innerHTML = "";
-      }
-      function definirDataCriacao() {
-        const campo = document.getElementById("data-criacao");
-
-        if (!campo.value) {
-          campo.value = new Date().toISOString().slice(0, 10);
-        }
-      }
-
-      function formatarData(data) {
-        if (!data) return "-";
-
-        const partes = data.split("-");
-
-        if (partes.length !== 3) return data;
-
-        return partes[2] + "/" + partes[1] + "/" + partes[0];
-      }
-
-      function classeCriticidade(criticidade) {
-        return criticidade
-          .toLowerCase()
-          .normalize("NFD")
-          .replace(/[\u0300-\u036f]/g, "");
-      }
-
-      function escaparTexto(valor) {
-        const div = document.createElement("div");
-        div.textContent = valor || "";
-        return div.innerHTML;
-      }
-
-      function cadastrarNotaCarteira(evento) {
-        evento.preventDefault();
-
-        const usuario = localStorage.getItem(CHAVE_SESSAO_CARTEIRA);
-
-        if (!usuario) {
-          abrirCarteira();
-          return;
-        }
-
-        const nota = {
-          id: gerarId(),
-          usuario: usuario,
-          numero: document.getElementById("numero-nota").value.trim(),
-          descricao: document.getElementById("descricao-nota").value.trim(),
-          equipamento: document.getElementById("equipamento-nota").value.trim(),
-          tag: document.getElementById("tag-nota").value.trim(),
-          dataCriacao: document.getElementById("data-criacao").value,
-          dataExecucao: document.getElementById("data-execucao").value,
-          criticidade: document.getElementById("criticidade-nota").value,
-          criadaEm: new Date().toISOString(),
-        };
-
-        const notas = lerLista(CHAVE_NOTAS_CARTEIRA);
-        notas.push(nota);
-
-        localStorage.setItem(CHAVE_NOTAS_CARTEIRA, JSON.stringify(notas));
-
-        document.getElementById("form-nota-carteira").reset();
-        definirDataCriacao();
-        renderizarNotasCarteira();
-
-        alert("Nota cadastrada com sucesso!");
-      }
-
-      function renderizarNotasCarteira() {
-        const usuario = localStorage.getItem(CHAVE_SESSAO_CARTEIRA);
-        const lista = document.getElementById("lista-notas-carteira");
-        const semNotas = document.getElementById("sem-notas");
-
-        const filtroCriticidade =
-          document.getElementById("filtro-criticidade").value;
-
-        const filtroEquipamento = document
-          .getElementById("filtro-equipamento")
-          .value.trim()
-          .toLowerCase();
-
-        const notas = lerLista(CHAVE_NOTAS_CARTEIRA)
-          .filter(function (nota) {
-            return nota.usuario === usuario;
-          })
-          .filter(function (nota) {
-            return !filtroCriticidade || nota.criticidade === filtroCriticidade;
-          })
-          .filter(function (nota) {
-            return (
-              !filtroEquipamento ||
-              nota.equipamento.toLowerCase().includes(filtroEquipamento)
-            );
-          });
-
-        lista.innerHTML = "";
-        semNotas.style.display = notas.length ? "none" : "block";
-
-        notas.forEach(function (nota) {
-          const linha = document.createElement("tr");
-
-          linha.innerHTML = `
-  <td>${escaparTexto(nota.numero)}</td>
-  <td>${escaparTexto(nota.descricao)}</td>
-  <td>${escaparTexto(nota.equipamento)}</td>
-  <td>${escaparTexto(nota.tag || "-")}</td>
-  <td>${formatarData(nota.dataCriacao)}</td>
-  <td>${formatarData(nota.dataExecucao)}</td>
-  <td>
-    <span class="badge-criticidade badge-${classeCriticidade(
-      nota.criticidade,
-    )}">
-      ${escaparTexto(nota.criticidade)}
-    </span>
-  </td>
-  <td>
-    <button
-      type="button"
-      class="btn-excluir-nota"
-      onclick="excluirNotaCarteira('${nota.id}')"
-      title="Excluir nota"
-    >
-      <i class="fa-solid fa-trash"></i>
-    </button>
-  </td>
-`;
-
-          lista.appendChild(linha);
-        });
-      }
-
-      function excluirNotaCarteira(id) {
-        if (!confirm("Deseja realmente excluir esta nota?")) {
-          return;
-        }
-
-        const notas = lerLista(CHAVE_NOTAS_CARTEIRA).filter(function (nota) {
-          return nota.id !== id;
-        });
-
-        localStorage.setItem(CHAVE_NOTAS_CARTEIRA, JSON.stringify(notas));
-
-        renderizarNotasCarteira();
-      }
-
-      function limparFiltrosCarteira() {
-        document.getElementById("filtro-criticidade").value = "";
-        document.getElementById("filtro-equipamento").value = "";
-        renderizarNotasCarteira();
-      }
-
-      document
-        .getElementById("form-nota-carteira")
-        .addEventListener("submit", cadastrarNotaCarteira);
-
-      document
-        .getElementById("filtro-criticidade")
-        .addEventListener("change", renderizarNotasCarteira);
-
-      document
-        .getElementById("filtro-equipamento")
-        .addEventListener("input", renderizarNotasCarteira);
-
-      criarListaInspecao();
-    </script>
-    <script type="module">
-      import {
-        collection,
-        onSnapshot,
-        orderBy,
-        query,
-      } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
-      import { db } from "./js/firebase-config.js";
-
-      const seletorInspecao = document.getElementById("sel-equipamento");
-
-      const seletorCarteira = document.getElementById("equipamento-nota");
-
-      const avisoSemRegistros = document.getElementById("sem-registros");
-
-      function limparSeletor(seletor, texto) {
-        if (!seletor) {
-          return;
-        }
-
-        seletor.innerHTML = "";
-
-        const opcao = document.createElement("option");
-        opcao.value = "";
-        opcao.textContent = texto;
-
-        seletor.appendChild(opcao);
-      }
-
-      function carregarEquipamentosFirebase() {
-        limparSeletor(seletorInspecao, "Carregando equipamentos...");
-
-        limparSeletor(seletorCarteira, "Carregando equipamentos...");
-
-        if (seletorInspecao) {
-          seletorInspecao.disabled = true;
-        }
-
-        if (seletorCarteira) {
-          seletorCarteira.disabled = true;
-        }
-
-        const consulta = query(
-          collection(db, "equipamentos"),
-          orderBy("equipamento"),
-        );
-
-        onSnapshot(
-          consulta,
-          function (snapshot) {
-            const nomesEquipamentos = new Set();
-
-            snapshot.forEach(function (documento) {
-              const dados = documento.data();
-
-              if (dados.equipamento) {
-                nomesEquipamentos.add(String(dados.equipamento).trim());
-              }
-            });
-
-            const equipamentos = Array.from(nomesEquipamentos).sort(
-              function (a, b) {
-                return a.localeCompare(b, "pt-BR");
-              },
-            );
-
-            preencherSeletor(
-              seletorInspecao,
-              equipamentos,
-              "— Selecione o Equipamento —",
-            );
-
-            preencherSeletor(
-              seletorCarteira,
-              equipamentos,
-              "— Selecione o Equipamento —",
-            );
-
-            if (seletorInspecao) {
-              seletorInspecao.disabled = equipamentos.length === 0;
-            }
-
-            if (seletorCarteira) {
-              seletorCarteira.disabled = equipamentos.length === 0;
-            }
-
-            if (avisoSemRegistros) {
-              avisoSemRegistros.style.display =
-                equipamentos.length === 0 ? "block" : "none";
-
-              if (equipamentos.length === 0) {
-                avisoSemRegistros.textContent =
-                  "Nenhum equipamento cadastrado no Firebase. Cadastre equipamentos no painel administrativo.";
-              }
-            }
-          },
-          function (erro) {
-            console.error("Erro ao carregar equipamentos do Firebase:", erro);
-
-            mostrarErroEquipamentos(
-              "Não foi possível carregar os equipamentos.",
-            );
-          },
-        );
-      }
-
-      function preencherSeletor(seletor, equipamentos, textoInicial) {
-        if (!seletor) {
-          return;
-        }
-
-        limparSeletor(seletor, textoInicial);
-
-        equipamentos.forEach(function (equipamento) {
-          const opcao = document.createElement("option");
-
-          opcao.value = equipamento;
-          opcao.textContent = equipamento;
-
-          seletor.appendChild(opcao);
-        });
-      }
-
-      function mostrarErroEquipamentos(texto) {
-        if (seletorInspecao) {
-          limparSeletor(seletorInspecao, texto);
-
-          seletorInspecao.disabled = true;
-        }
-
-        if (seletorCarteira) {
-          limparSeletor(seletorCarteira, texto);
-
-          seletorCarteira.disabled = true;
-        }
-
-        if (avisoSemRegistros) {
-          avisoSemRegistros.style.display = "block";
-          avisoSemRegistros.textContent = texto;
-        }
-      }
-
-      carregarEquipamentosFirebase();
-    </script>
     <script type="module">
       import {
         addDoc,
         collection,
+        deleteDoc,
+        doc,
+        getDoc,
+        getDocs,
         onSnapshot,
+        query,
         serverTimestamp,
+        setDoc,
+        where,
       } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-      import { db } from "./js/firebase-config.js";
+      import {
+        createUserWithEmailAndPassword,
+        onAuthStateChanged,
+        signInWithEmailAndPassword,
+        signOut,
+      } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-      const colecaoInspecoes = collection(db, "inspecoes_equipamentos");
+      import { auth, db } from "./js/firebase-config.js";
 
-      const seletorConsulta = document.getElementById("consulta-tag-inspecao");
+      const CHAVE_NOTAS = "lubeasy_carteira_notas";
 
-      const resultado = document.getElementById("resultado-consulta-inspecao");
+      const CHAVE_SESSAO = "lubeasy_carteira_sessao";
 
-      const formulario = document.getElementById("form-informacoes-inspecao");
+      const atuaisRef = collection(db, "inspecoes_atuais");
 
-      const botaoLimpar = document.getElementById(
-        "limpar-informacoes-inspecao",
-      );
+      const historicoRef = collection(db, "inspecoes_historico");
 
-      let informacoesInspecao = [];
+      let registrosAtuais = [];
+      let usuarioAtual = null;
+      let autorizado = false;
 
-      function escaparTexto(valor) {
-        const div = document.createElement("div");
+      const $ = (id) => document.getElementById(id);
 
-        if (valor === undefined || valor === null || valor === "") {
-          div.textContent = "-";
-        } else {
-          div.textContent = String(valor);
-        }
+      function escapar(valor) {
+        const elemento = document.createElement("div");
 
-        return div.innerHTML;
+        elemento.textContent = valor ?? "";
+
+        return elemento.innerHTML;
       }
 
-      function preencherTags() {
-        if (!seletorConsulta) {
-          console.error("Elemento #consulta-tag-inspecao não foi encontrado.");
-          return;
-        }
-
-        const tags = [
-          ...new Set(
-            informacoesInspecao
-              .map(function (registro) {
-                return String(registro.tag || "").trim();
-              })
-              .filter(function (tag) {
-                return tag !== "";
-              }),
-          ),
-        ];
-
-        tags.sort(function (a, b) {
-          return a.localeCompare(b, "pt-BR");
-        });
-
-        seletorConsulta.innerHTML = "";
-
-        const opcaoInicial = document.createElement("option");
-
-        opcaoInicial.value = "";
-        opcaoInicial.textContent =
-          tags.length > 0 ? "— Selecione a TAG —" : "Nenhuma TAG cadastrada";
-
-        seletorConsulta.appendChild(opcaoInicial);
-
-        tags.forEach(function (tag) {
-          const opcao = document.createElement("option");
-
-          opcao.value = tag;
-          opcao.textContent = tag;
-
-          seletorConsulta.appendChild(opcao);
-        });
-
-        seletorConsulta.disabled = tags.length === 0;
+      function gerarId() {
+        return "_" + Math.random().toString(36).slice(2, 11);
       }
 
-      function mostrarMensagemInicial() {
-        if (!resultado) {
-          return;
-        }
-
-        resultado.classList.add("ativo");
-
-        resultado.innerHTML = `
-      <p>Selecione uma TAG para consultar as informações.</p>
-    `;
-      }
-
-      function atualizarConsulta() {
-        if (!seletorConsulta || !resultado) {
-          return;
-        }
-
-        const tagSelecionada = seletorConsulta.value.trim();
-
-        if (!tagSelecionada) {
-          mostrarMensagemInicial();
-          return;
-        }
-
-        const registros = informacoesInspecao.filter(function (registro) {
-          return String(registro.tag || "").trim() === tagSelecionada;
-        });
-
-        if (registros.length === 0) {
-          resultado.classList.add("ativo");
-
-          resultado.innerHTML = `
-        <p>
-          Nenhuma informação foi encontrada para a TAG
-          <strong>${escaparTexto(tagSelecionada)}</strong>.
-        </p>
-      `;
-
-          return;
-        }
-
-        // Exibe o registro mais recente da TAG selecionada.
-        const dados = registros[registros.length - 1];
-
-        resultado.classList.add("ativo");
-
-        resultado.innerHTML = `
-      <h3>
-        <i class="fa-solid fa-clipboard-check"></i>
-        Informações da inspeção
-      </h3>
-
-      <div class="item-resultado">
-        <strong>TAG</strong>
-        <span>${escaparTexto(dados.tag)}</span>
-      </div>
-
-      <div class="item-resultado">
-        <strong>Folga do cubo de hélice</strong>
-        <span>${escaparTexto(dados.folgaCuboHelice)}</span>
-      </div>
-
-      <div class="item-resultado">
-        <strong>Âncora</strong>
-        <span>${escaparTexto(dados.ancora)}</span>
-      </div>
-
-      <div class="item-resultado">
-        <strong>Lâmina</strong>
-        <span>${escaparTexto(dados.lamina)}</span>
-      </div>
-
-      <div class="item-resultado">
-        <strong>Escarificador</strong>
-        <span>${escaparTexto(dados.escarificador)}</span>
-      </div>
-
-      <div class="item-resultado">
-        <strong>Pontas</strong>
-        <span>${escaparTexto(dados.pontas)}</span>
-      </div>
-
-      <div class="item-resultado">
-        <strong>Lâminas já foram viradas?</strong>
-        <span>${escaparTexto(dados.laminasViradas)}</span>
-      </div>
-    `;
-      }
-
-      function carregarInformacoesInspecao() {
-        onSnapshot(
-          colecaoInspecoes,
-          function (snapshot) {
-            informacoesInspecao = [];
-
-            snapshot.forEach(function (documento) {
-              const dados = documento.data();
-
-              informacoesInspecao.push({
-                id: documento.id,
-                ...dados,
-              });
-            });
-
-            console.log(
-              "Informações de inspeção carregadas:",
-              informacoesInspecao,
-            );
-
-            preencherTags();
-            atualizarConsulta();
-          },
-          function (erro) {
-            console.error("Erro ao carregar informações da inspeção:", erro);
-
-            if (seletorConsulta) {
-              seletorConsulta.innerHTML = `
-            <option value="">
-              Erro ao carregar TAGs
-            </option>
-          `;
-
-              seletorConsulta.disabled = true;
-            }
-
-            if (resultado) {
-              resultado.classList.add("ativo");
-
-              resultado.innerHTML = `
-            <p>
-              Não foi possível carregar as informações da inspeção.
-              Verifique o console do navegador.
-            </p>
-          `;
-            }
-          },
+      function idDaTag(tag) {
+        return encodeURIComponent(
+          String(tag || "")
+            .trim()
+            .toUpperCase(),
         );
       }
 
-      async function salvarInformacoesInspecao(evento) {
+      function formatarData(data) {
+        if (!data) {
+          return "-";
+        }
+
+        const partes = String(data).split("-");
+
+        if (partes.length !== 3) {
+          return String(data);
+        }
+
+        return partes[2] + "/" + partes[1] + "/" + partes[0];
+      }
+
+      function dataAtual() {
+        return new Date().toISOString().slice(0, 10);
+      }
+
+      function lerNotas() {
+        try {
+          const notas = JSON.parse(localStorage.getItem(CHAVE_NOTAS) || "[]");
+
+          return Array.isArray(notas) ? notas : [];
+        } catch {
+          return [];
+        }
+      }
+
+      function linhaResultado(titulo, valor) {
+        return `
+          <div class="linha-resultado">
+            <strong>${escapar(titulo)}</strong>
+            <span>${escapar(valor || "-")}</span>
+          </div>
+        `;
+      }
+
+      /*
+       * ABERTURA E FECHAMENTO DOS PAINÉIS
+       */
+
+      function mostrarCarteira() {
+        /*
+         * Esta linha esconde a consulta pública.
+         */
+        $("painel-principal").classList.add("oculto");
+
+        /*
+         * Esta linha mostra somente a carteira.
+         */
+        $("painel-carteira").classList.add("ativo");
+
+        mostrarGuia("notas");
+        renderizarNotas();
+
+        if (!$("data-criacao").value) {
+          $("data-criacao").value = dataAtual();
+        }
+      }
+
+      window.abrirCarteira = function () {
+        if (auth.currentUser) {
+          mostrarCarteira();
+          return;
+        }
+
+        $("modal-login").classList.add("ativo");
+
+        $("email-login").focus();
+      };
+
+      window.fecharCarteira = function () {
+        /*
+         * Esconde a carteira.
+         */
+        $("painel-carteira").classList.remove("ativo");
+
+        /*
+         * Mostra novamente a consulta pública.
+         */
+        $("painel-principal").classList.remove("oculto");
+      };
+
+      window.fecharLogin = function () {
+        $("modal-login").classList.remove("ativo");
+
+        $("erro-login").classList.remove("ativo");
+      };
+
+      window.mostrarGuia = function (nome) {
+        const mostrarNotas = nome === "notas";
+
+        $("guia-notas").classList.toggle("ativa", mostrarNotas);
+
+        $("guia-tecnicas").classList.toggle("ativa", !mostrarNotas);
+
+        $("conteudo-notas").classList.toggle("ativo", mostrarNotas);
+
+        $("conteudo-tecnicas").classList.toggle("ativo", !mostrarNotas);
+      };
+
+      /*
+       * NOTAS
+       */
+
+      $("form-nota").addEventListener("submit", (evento) => {
         evento.preventDefault();
 
+        const email = localStorage.getItem(CHAVE_SESSAO);
+
+        if (!email) {
+          abrirCarteira();
+          return;
+        }
+
+        const notas = lerNotas();
+
+        notas.push({
+          id: gerarId(),
+          usuario: email,
+          numero: $("numero-nota").value.trim(),
+
+          equipamento: $("equipamento-nota").value.trim(),
+
+          tag: $("tag-nota").value.trim().toUpperCase(),
+
+          descricao: $("descricao-nota").value.trim(),
+
+          dataCriacao: $("data-criacao").value,
+
+          dataExecucao: $("data-execucao").value,
+
+          criticidade: $("criticidade-nota").value,
+
+          criadaEm: new Date().toISOString(),
+        });
+
+        localStorage.setItem(CHAVE_NOTAS, JSON.stringify(notas));
+
+        $("form-nota").reset();
+
+        $("data-criacao").value = dataAtual();
+
+        renderizarNotas();
+
+        alert("Nota cadastrada com sucesso.");
+      });
+
+      function renderizarNotas() {
+        const email = localStorage.getItem(CHAVE_SESSAO);
+
+        const notas = lerNotas().filter((nota) => nota.usuario === email);
+
+        const lista = $("lista-notas");
+
+        lista.innerHTML = "";
+
+        $("sem-notas").style.display = notas.length ? "none" : "block";
+
+        notas.forEach((nota) => {
+          const linha = document.createElement("tr");
+
+          linha.innerHTML = `
+            <td>${escapar(nota.numero)}</td>
+            <td>${escapar(nota.descricao)}</td>
+            <td>${escapar(nota.equipamento)}</td>
+            <td>${escapar(nota.tag)}</td>
+            <td>${formatarData(nota.dataCriacao)}</td>
+            <td>${formatarData(nota.dataExecucao)}</td>
+            <td>${escapar(nota.criticidade)}</td>
+            <td>
+              <button
+                type="button"
+                class="btn btn-perigo btn-pequeno"
+              >
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            </td>
+          `;
+
+          linha.querySelector("button").addEventListener("click", () => {
+            if (!confirm("Deseja excluir esta nota?")) {
+              return;
+            }
+
+            const atualizadas = lerNotas().filter(
+              (item) => item.id !== nota.id,
+            );
+
+            localStorage.setItem(CHAVE_NOTAS, JSON.stringify(atualizadas));
+
+            renderizarNotas();
+          });
+
+          lista.appendChild(linha);
+        });
+      }
+
+      /*
+       * CONSULTA PÚBLICA
+       */
+
+      function atualizarListaPublica() {
+        const select = $("consulta-tag");
+
+        const tags = [
+          ...new Set(
+            registrosAtuais
+              .map((item) =>
+                String(item.tag || "")
+                  .trim()
+                  .toUpperCase(),
+              )
+              .filter(Boolean),
+          ),
+        ].sort();
+
+        select.innerHTML = `
+          <option value="">
+            ${tags.length ? "Selecione uma TAG" : "Nenhuma TAG cadastrada"}
+          </option>
+        `;
+
+        tags.forEach((tag) => {
+          const option = document.createElement("option");
+
+          option.value = tag;
+          option.textContent = tag;
+
+          select.appendChild(option);
+        });
+      }
+
+      function exibirConsulta() {
+        const tag = $("consulta-tag").value;
+
+        const resultado = $("resultado-consulta");
+
+        if (!tag) {
+          resultado.innerHTML =
+            "Selecione uma TAG para consultar as informações atuais.";
+
+          return;
+        }
+
+        const registro = registrosAtuais.find(
+          (item) =>
+            String(item.tag || "")
+              .trim()
+              .toUpperCase() === tag,
+        );
+
+        if (!registro) {
+          resultado.innerHTML = `
+            Nenhuma informação encontrada para a TAG
+            <strong>${escapar(tag)}</strong>.
+          `;
+
+          return;
+        }
+
+        resultado.innerHTML = `
+          <h3>
+            <i class="fa-solid fa-circle-check"></i>
+            Informações atuais
+          </h3>
+
+          ${linhaResultado("TAG", registro.tag)}
+
+          ${linhaResultado(
+            "Data da inspeção",
+            formatarData(registro.dataInspecao),
+          )}
+
+          ${linhaResultado("Folga do cubo de hélice", registro.folgaCuboHelice)}
+
+          ${linhaResultado("Âncora", registro.ancora)}
+
+          ${linhaResultado("Lâmina", registro.lamina)}
+
+          ${linhaResultado("Escarificador", registro.escarificador)}
+
+          ${linhaResultado("Pontas", registro.pontas)}
+
+          ${linhaResultado(
+            "Lâminas já foram viradas?",
+            registro.laminasViradas,
+          )}
+        `;
+      }
+
+      $("consulta-tag").addEventListener("change", exibirConsulta);
+
+      /*
+       * TAG TÉCNICA DIGITADA PELO INSPETOR
+       */
+
+      $("tag-tecnica").addEventListener("input", (evento) => {
+        evento.target.value = evento.target.value.toUpperCase().trimStart();
+      });
+
+      $("tag-tecnica").addEventListener("blur", () => {
+        const tag = $("tag-tecnica").value.trim().toUpperCase();
+
+        $("tag-tecnica").value = tag;
+
+        if (tag) {
+          carregarTecnico(tag);
+        }
+      });
+
+      /*
+       * AUTORIZAÇÃO
+       */
+
+      async function verificarAutorizacao(usuario) {
+        usuarioAtual = usuario;
+        autorizado = false;
+
+        $("area-tecnica").style.display = "none";
+
+        if (!usuario) {
+          $("status-autorizacao").className = "status erro";
+
+          $("status-autorizacao").textContent =
+            "Faça login para acessar as informações técnicas.";
+
+          return;
+        }
+
+        try {
+          const referencia = doc(db, "inspetores", usuario.uid);
+
+          const documento = await getDoc(referencia);
+
+          if (documento.exists() && documento.data().permitido === true) {
+            autorizado = true;
+
+            $("area-tecnica").style.display = "block";
+
+            $("status-autorizacao").className = "status sucesso";
+
+            $("status-autorizacao").textContent =
+              "Inspetor autorizado para editar informações técnicas.";
+          } else {
+            $("status-autorizacao").className = "status erro";
+
+            $("status-autorizacao").textContent =
+              "Este usuário não está autorizado como inspetor.";
+          }
+        } catch (erro) {
+          console.error("Erro ao verificar autorização:", erro);
+
+          $("status-autorizacao").className = "status erro";
+
+          $("status-autorizacao").textContent =
+            "Não foi possível verificar a autorização.";
+        }
+      }
+
+      /*
+       * CARREGAR DADOS DE UMA TAG DIGITADA
+       */
+
+      async function carregarTecnico(tagInformada) {
+        if (!autorizado || !tagInformada) {
+          return;
+        }
+
+        const tag = tagInformada.trim().toUpperCase();
+
+        try {
+          const referencia = doc(db, "inspecoes_atuais", idDaTag(tag));
+
+          const documento = await getDoc(referencia);
+
+          if (!documento.exists()) {
+            limparCamposTecnicos(false);
+
+            $("tag-tecnica").value = tag;
+
+            $("btn-apagar-tecnico").disabled = true;
+
+            $("area-historico").style.display = "none";
+
+            return;
+          }
+
+          const dados = documento.data();
+
+          $("data-inspecao").value = dados.dataInspecao || "";
+
+          $("folga-cubo-helice").value = dados.folgaCuboHelice || "";
+
+          $("ancora").value = dados.ancora || "";
+
+          $("lamina").value = dados.lamina || "";
+
+          $("escarificador").value = dados.escarificador || "";
+
+          $("pontas").value = dados.pontas || "";
+
+          $("laminas-viradas").value = dados.laminasViradas || "";
+
+          $("btn-apagar-tecnico").disabled = false;
+
+          carregarHistorico(tag);
+        } catch (erro) {
+          console.error("Erro ao carregar informação técnica:", erro);
+
+          alert("Não foi possível carregar os dados desta TAG.");
+        }
+      }
+
+      function limparCamposTecnicos(limparTag = true) {
+        if (limparTag) {
+          $("tag-tecnica").value = "";
+        }
+
+        $("data-inspecao").value = "";
+
+        $("folga-cubo-helice").value = "";
+
+        $("ancora").value = "";
+
+        $("lamina").value = "";
+
+        $("escarificador").value = "";
+
+        $("pontas").value = "";
+
+        $("laminas-viradas").value = "";
+
+        $("btn-apagar-tecnico").disabled = true;
+
+        $("area-historico").style.display = "none";
+
+        $("lista-historico").innerHTML = "";
+      }
+
+      window.limparTecnico = function () {
+        limparCamposTecnicos(true);
+      };
+
+      /*
+       * SALVAR INFORMAÇÃO TÉCNICA
+       */
+
+      $("form-tecnico").addEventListener("submit", async (evento) => {
+        evento.preventDefault();
+
+        if (!usuarioAtual || !autorizado) {
+          alert("Somente um inspetor autorizado pode salvar.");
+
+          return;
+        }
+
+        const tag = $("tag-tecnica").value.trim().toUpperCase();
+
+        $("tag-tecnica").value = tag;
+
+        if (!tag) {
+          alert("Digite a TAG do equipamento.");
+
+          $("tag-tecnica").focus();
+
+          return;
+        }
+
         const dados = {
-          tag: document.getElementById("tag-info-inspecao").value.trim(),
+          tag,
 
-          folgaCuboHelice: document
-            .getElementById("folga-cubo-helice")
-            .value.trim(),
+          dataInspecao: $("data-inspecao").value,
 
-          ancora: document.getElementById("ancora-inspecao").value.trim(),
+          folgaCuboHelice: $("folga-cubo-helice").value.trim(),
 
-          lamina: document.getElementById("lamina-inspecao").value.trim(),
+          ancora: $("ancora").value.trim(),
 
-          escarificador: document
-            .getElementById("escarificador-inspecao")
-            .value.trim(),
+          lamina: $("lamina").value.trim(),
 
-          pontas: document.getElementById("pontas-inspecao").value.trim(),
+          escarificador: $("escarificador").value.trim(),
 
-          laminasViradas: document.getElementById("laminas-viradas").value,
+          pontas: $("pontas").value.trim(),
 
-          criadoEm: serverTimestamp(),
+          laminasViradas: $("laminas-viradas").value,
+
+          inspetorUid: usuarioAtual.uid,
+
+          emailInspetor: usuarioAtual.email || "",
+
+          atualizadoEm: serverTimestamp(),
         };
 
-        const camposObrigatorios = [
+        const obrigatorios = [
           dados.tag,
+          dados.dataInspecao,
           dados.folgaCuboHelice,
           dados.ancora,
           dados.lamina,
@@ -1887,62 +1432,319 @@
           dados.laminasViradas,
         ];
 
-        const existeCampoVazio = camposObrigatorios.some(function (campo) {
-          return !campo;
-        });
+        if (obrigatorios.some((campo) => !campo)) {
+          alert("Preencha todos os campos técnicos.");
 
-        if (existeCampoVazio) {
-          alert("Preencha todos os campos das informações de inspeção.");
           return;
         }
 
         try {
-          await addDoc(colecaoInspecoes, dados);
+          const referencia = doc(db, "inspecoes_atuais", idDaTag(tag));
 
-          alert("Informações de inspeção salvas com sucesso!");
+          const anterior = await getDoc(referencia);
 
-          formulario.reset();
+          if (anterior.exists()) {
+            await addDoc(historicoRef, {
+              ...anterior.data(),
+              tag,
 
-          // O onSnapshot atualizará automaticamente a lista de TAGs.
+              arquivadoPorUid: usuarioAtual.uid,
+
+              arquivadoPorEmail: usuarioAtual.email || "",
+
+              arquivadoEm: serverTimestamp(),
+            });
+          }
+
+          await setDoc(referencia, dados);
+
+          $("btn-apagar-tecnico").disabled = false;
+
+          await carregarHistorico(tag);
+
+          alert("Informações técnicas salvas com sucesso.");
         } catch (erro) {
-          console.error("Erro ao salvar informações de inspeção:", erro);
+          console.error("Erro ao salvar informação técnica:", erro);
 
-          alert(
-            "Não foi possível salvar as informações. Verifique as permissões do Firebase.",
-          );
+          alert("Não foi possível salvar. Verifique as regras do Firebase.");
+        }
+      });
+
+      /*
+       * HISTÓRICO
+       */
+
+      async function carregarHistorico(tag) {
+        $("area-historico").style.display = "block";
+
+        $("lista-historico").innerHTML = "Carregando histórico...";
+
+        try {
+          const consulta = query(historicoRef, where("tag", "==", tag));
+
+          const snapshot = await getDocs(consulta);
+
+          const itens = [];
+
+          snapshot.forEach((documento) => {
+            itens.push(documento.data());
+          });
+
+          if (!itens.length) {
+            $("lista-historico").innerHTML =
+              "Ainda não existem versões anteriores para esta TAG.";
+
+            return;
+          }
+
+          $("lista-historico").innerHTML = itens
+            .map(
+              (item, indice) => `
+                  <div class="historico-item">
+                    <strong>
+                      Versão anterior ${indice + 1}
+                    </strong>
+                    <br />
+
+                    Data da inspeção:
+                    ${escapar(formatarData(item.dataInspecao))}
+                    <br />
+
+                    Folga do cubo:
+                    ${escapar(item.folgaCuboHelice)}
+                    <br />
+
+                    Âncora:
+                    ${escapar(item.ancora)}
+                    <br />
+
+                    Lâmina:
+                    ${escapar(item.lamina)}
+                    <br />
+
+                    Escarificador:
+                    ${escapar(item.escarificador)}
+                    <br />
+
+                    Pontas:
+                    ${escapar(item.pontas)}
+                    <br />
+
+                    Lâminas viradas:
+                    ${escapar(item.laminasViradas)}
+                  </div>
+                `,
+            )
+            .join("");
+        } catch (erro) {
+          console.error("Erro ao carregar histórico:", erro);
+
+          $("lista-historico").innerHTML =
+            "Não foi possível carregar o histórico.";
         }
       }
 
-      if (formulario) {
-        formulario.addEventListener("submit", salvarInformacoesInspecao);
-      } else {
-        console.error(
-          "Formulário #form-informacoes-inspecao não foi encontrado.",
-        );
+      /*
+       * APAGAR INFORMAÇÃO ATUAL
+       */
+
+      window.apagarTecnico = async function () {
+        if (!usuarioAtual || !autorizado) {
+          alert("Somente um inspetor autorizado pode apagar.");
+
+          return;
+        }
+
+        const tag = $("tag-tecnica").value.trim().toUpperCase();
+
+        if (!tag) {
+          alert("Digite uma TAG.");
+          return;
+        }
+
+        if (
+          !confirm(
+            "Deseja apagar a informação atual desta TAG? O histórico será preservado.",
+          )
+        ) {
+          return;
+        }
+
+        try {
+          await deleteDoc(doc(db, "inspecoes_atuais", idDaTag(tag)));
+
+          limparCamposTecnicos(true);
+
+          atualizarListaPublica();
+
+          exibirConsulta();
+
+          alert("Informação atual apagada com sucesso.");
+        } catch (erro) {
+          console.error("Erro ao apagar informação:", erro);
+
+          alert("Não foi possível apagar a informação.");
+        }
+      };
+
+      /*
+       * LOGIN
+       */
+
+      function mostrarErroLogin(mensagem) {
+        $("erro-login").textContent = mensagem;
+
+        $("erro-login").classList.add("ativo");
       }
 
-      if (botaoLimpar && formulario) {
-        botaoLimpar.addEventListener("click", function () {
-          formulario.reset();
-        });
+      function mensagemErroFirebase(codigo) {
+        const mensagens = {
+          "auth/email-already-in-use": "Este e-mail já está cadastrado.",
+
+          "auth/invalid-email": "Digite um e-mail válido.",
+
+          "auth/weak-password": "A senha deve ter pelo menos 6 caracteres.",
+
+          "auth/invalid-credential": "E-mail ou senha incorretos.",
+
+          "auth/user-not-found": "E-mail ou senha incorretos.",
+
+          "auth/wrong-password": "E-mail ou senha incorretos.",
+        };
+
+        return mensagens[codigo] || "Não foi possível realizar a operação.";
       }
 
-      if (seletorConsulta) {
-        seletorConsulta.addEventListener("change", atualizarConsulta);
-      }
+      window.entrarCarteira = async function () {
+        const email = $("email-login").value.trim().toLowerCase();
 
-      carregarInformacoesInspecao();
+        const senha = $("senha-login").value;
+
+        if (!email || !senha) {
+          mostrarErroLogin("Informe o e-mail e a senha.");
+
+          return;
+        }
+
+        try {
+          const resultado = await signInWithEmailAndPassword(
+            auth,
+            email,
+            senha,
+          );
+
+          localStorage.setItem(CHAVE_SESSAO, resultado.user.email || email);
+
+          fecharLogin();
+          mostrarCarteira();
+        } catch (erro) {
+          console.error(erro);
+
+          mostrarErroLogin(mensagemErroFirebase(erro.code));
+        }
+      };
+
+      window.cadastrarCarteira = async function () {
+        const email = $("email-login").value.trim().toLowerCase();
+
+        const senha = $("senha-login").value;
+
+        if (!email || !senha) {
+          mostrarErroLogin("Informe o e-mail e a senha.");
+
+          return;
+        }
+
+        if (senha.length < 6) {
+          mostrarErroLogin("A senha deve ter pelo menos 6 caracteres.");
+
+          return;
+        }
+
+        try {
+          const resultado = await createUserWithEmailAndPassword(
+            auth,
+            email,
+            senha,
+          );
+
+          localStorage.setItem(CHAVE_SESSAO, resultado.user.email || email);
+
+          fecharLogin();
+          mostrarCarteira();
+
+          alert("Cadastro realizado com sucesso.");
+        } catch (erro) {
+          console.error(erro);
+
+          mostrarErroLogin(mensagemErroFirebase(erro.code));
+        }
+      };
+
+      window.sairCarteira = async function () {
+        if (!confirm("Deseja sair da conta? Suas notas serão preservadas.")) {
+          return;
+        }
+
+        await signOut(auth);
+
+        localStorage.removeItem(CHAVE_SESSAO);
+
+        fecharCarteira();
+      };
+
+      /*
+       * FIRESTORE
+       */
+
+      onSnapshot(
+        atuaisRef,
+        (snapshot) => {
+          registrosAtuais = [];
+
+          snapshot.forEach((documento) => {
+            registrosAtuais.push({
+              id: documento.id,
+              ...documento.data(),
+            });
+          });
+
+          atualizarListaPublica();
+          exibirConsulta();
+        },
+        (erro) => {
+          console.error("Erro ao carregar inspeções:", erro);
+
+          $("consulta-tag").innerHTML = `
+            <option value="">
+              Não foi possível carregar as TAGs
+            </option>
+          `;
+        },
+      );
+
+      onAuthStateChanged(auth, (usuario) => {
+        usuarioAtual = usuario;
+
+        if (usuario) {
+          localStorage.setItem(CHAVE_SESSAO, usuario.email || "");
+        } else {
+          localStorage.removeItem(CHAVE_SESSAO);
+        }
+
+        verificarAutorizacao(usuario);
+      });
+
+      $("data-criacao").value = dataAtual();
     </script>
+
     <script>
       if ("serviceWorker" in navigator) {
-        window.addEventListener("load", function () {
+        window.addEventListener("load", () => {
           navigator.serviceWorker
             .register("./serviceworker.js")
-            .then(function (registro) {
-              console.log("Service Worker registrado:", registro);
-            })
-            .catch(function (erro) {
-              console.error("Erro ao registrar o Service Worker:", erro);
+            .catch((erro) => {
+              console.error("Erro ao registrar Service Worker:", erro);
             });
         });
       }
