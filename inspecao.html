@@ -564,6 +564,56 @@
           width: 100%;
         }
       }
+      .consulta-inspecao {
+        margin-bottom: 28px;
+        padding: 20px;
+        border-radius: 12px;
+        background: #f7f9fb;
+        border: 1px solid #dce6ef;
+      }
+
+      .resultado-consulta-inspecao {
+        display: none;
+        margin-top: 16px;
+        padding: 18px;
+        border-radius: 10px;
+        background: #fff;
+        border-left: 4px solid #2176c7;
+        color: #0d2b4e;
+      }
+
+      .resultado-consulta-inspecao.ativo {
+        display: block;
+      }
+
+      .resultado-consulta-inspecao h3 {
+        margin-bottom: 14px;
+        color: #0d2b4e;
+      }
+
+      .resultado-consulta-inspecao .item-resultado {
+        display: grid;
+        grid-template-columns: 240px 1fr;
+        gap: 12px;
+        padding: 9px 0;
+        border-bottom: 1px solid #e5edf5;
+        font-size: 14px;
+      }
+
+      .resultado-consulta-inspecao .item-resultado:last-child {
+        border-bottom: none;
+      }
+
+      .resultado-consulta-inspecao strong {
+        color: #0d2b4e;
+      }
+
+      @media (max-width: 620px) {
+        .resultado-consulta-inspecao .item-resultado {
+          grid-template-columns: 1fr;
+          gap: 4px;
+        }
+      }
     </style>
   </head>
   <body>
@@ -589,6 +639,30 @@
         <i class="fa-solid fa-clipboard-check"></i>
         Inspeção
       </h1>
+      <section class="consulta-inspecao">
+        <h2 class="secao-titulo">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          Consulta de informações do equipamento
+        </h2>
+
+        <div class="grupo">
+          <label for="consulta-tag-inspecao">
+            <i class="fa-solid fa-tag"></i>
+            Selecionar TAG do equipamento
+          </label>
+
+          <select id="consulta-tag-inspecao">
+            <option value="">— Selecione a TAG —</option>
+          </select>
+        </div>
+
+        <div
+          id="resultado-consulta-inspecao"
+          class="resultado-consulta-inspecao"
+        >
+          <p>Selecione uma TAG para consultar as informações.</p>
+        </div>
+      </section>
 
       <p class="sub">
         Selecione o equipamento, preencha o status de cada item e registre as
@@ -741,7 +815,106 @@
           </button>
         </div>
       </form>
+      <h3 class="secao-titulo">
+        <i class="fa-solid fa-clipboard-list"></i>
+        Informações técnicas da inspeção
+      </h3>
 
+      <form id="form-informacoes-inspecao" class="form-carteira">
+        <div class="campo">
+          <label for="tag-info-inspecao"> TAG do equipamento </label>
+
+          <input
+            type="text"
+            id="tag-info-inspecao"
+            placeholder="Ex.: TAG-001"
+            maxlength="50"
+            required
+          />
+        </div>
+
+        <div class="campo">
+          <label for="folga-cubo-helice"> Folga do cubo de hélice </label>
+
+          <input
+            type="text"
+            id="folga-cubo-helice"
+            placeholder="Ex.: 2 mm"
+            required
+          />
+        </div>
+
+        <div class="campo">
+          <label for="ancora-inspecao"> Âncora </label>
+
+          <input
+            type="text"
+            id="ancora-inspecao"
+            placeholder="Informe a condição ou medida"
+            required
+          />
+        </div>
+
+        <div class="campo">
+          <label for="lamina-inspecao"> Lâmina </label>
+
+          <input
+            type="text"
+            id="lamina-inspecao"
+            placeholder="Informe a condição ou medida"
+            required
+          />
+        </div>
+
+        <div class="campo">
+          <label for="escarificador-inspecao"> Escarificador </label>
+
+          <input
+            type="text"
+            id="escarificador-inspecao"
+            placeholder="Informe a condição ou medida"
+            required
+          />
+        </div>
+
+        <div class="campo">
+          <label for="pontas-inspecao"> Pontas </label>
+
+          <input
+            type="text"
+            id="pontas-inspecao"
+            placeholder="Informe a condição ou medida"
+            required
+          />
+        </div>
+
+        <div class="campo">
+          <label for="laminas-viradas"> As lâminas já foram viradas? </label>
+
+          <select id="laminas-viradas" required>
+            <option value="">Selecione</option>
+            <option value="Sim">Sim</option>
+            <option value="Não">Não</option>
+            <option value="N/A">N/A</option>
+          </select>
+        </div>
+
+        <div class="acoes">
+          <button type="submit" class="btn btn-salvar">
+            <i class="fa-solid fa-floppy-disk"></i>
+            Salvar informações
+          </button>
+
+          <button
+            type="button"
+            class="btn btn-limpar"
+            id="limpar-informacoes-inspecao"
+          >
+            <i class="fa-solid fa-eraser"></i>
+            Limpar
+          </button>
+        </div>
+      </form>
       <h3 class="secao-titulo">
         <i class="fa-solid fa-filter"></i>
         Filtrar notas
@@ -1459,6 +1632,306 @@
       }
 
       carregarEquipamentosFirebase();
+    </script>
+    <script type="module">
+      import {
+        addDoc,
+        collection,
+        onSnapshot,
+        serverTimestamp,
+      } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+      import { db } from "./js/firebase-config.js";
+
+      const colecaoInspecoes = collection(db, "inspecoes_equipamentos");
+
+      const seletorConsulta = document.getElementById("consulta-tag-inspecao");
+
+      const resultado = document.getElementById("resultado-consulta-inspecao");
+
+      const formulario = document.getElementById("form-informacoes-inspecao");
+
+      const botaoLimpar = document.getElementById(
+        "limpar-informacoes-inspecao",
+      );
+
+      let informacoesInspecao = [];
+
+      function escaparTexto(valor) {
+        const div = document.createElement("div");
+
+        if (valor === undefined || valor === null || valor === "") {
+          div.textContent = "-";
+        } else {
+          div.textContent = String(valor);
+        }
+
+        return div.innerHTML;
+      }
+
+      function preencherTags() {
+        if (!seletorConsulta) {
+          console.error("Elemento #consulta-tag-inspecao não foi encontrado.");
+          return;
+        }
+
+        const tags = [
+          ...new Set(
+            informacoesInspecao
+              .map(function (registro) {
+                return String(registro.tag || "").trim();
+              })
+              .filter(function (tag) {
+                return tag !== "";
+              }),
+          ),
+        ];
+
+        tags.sort(function (a, b) {
+          return a.localeCompare(b, "pt-BR");
+        });
+
+        seletorConsulta.innerHTML = "";
+
+        const opcaoInicial = document.createElement("option");
+
+        opcaoInicial.value = "";
+        opcaoInicial.textContent =
+          tags.length > 0 ? "— Selecione a TAG —" : "Nenhuma TAG cadastrada";
+
+        seletorConsulta.appendChild(opcaoInicial);
+
+        tags.forEach(function (tag) {
+          const opcao = document.createElement("option");
+
+          opcao.value = tag;
+          opcao.textContent = tag;
+
+          seletorConsulta.appendChild(opcao);
+        });
+
+        seletorConsulta.disabled = tags.length === 0;
+      }
+
+      function mostrarMensagemInicial() {
+        if (!resultado) {
+          return;
+        }
+
+        resultado.classList.add("ativo");
+
+        resultado.innerHTML = `
+      <p>Selecione uma TAG para consultar as informações.</p>
+    `;
+      }
+
+      function atualizarConsulta() {
+        if (!seletorConsulta || !resultado) {
+          return;
+        }
+
+        const tagSelecionada = seletorConsulta.value.trim();
+
+        if (!tagSelecionada) {
+          mostrarMensagemInicial();
+          return;
+        }
+
+        const registros = informacoesInspecao.filter(function (registro) {
+          return String(registro.tag || "").trim() === tagSelecionada;
+        });
+
+        if (registros.length === 0) {
+          resultado.classList.add("ativo");
+
+          resultado.innerHTML = `
+        <p>
+          Nenhuma informação foi encontrada para a TAG
+          <strong>${escaparTexto(tagSelecionada)}</strong>.
+        </p>
+      `;
+
+          return;
+        }
+
+        // Exibe o registro mais recente da TAG selecionada.
+        const dados = registros[registros.length - 1];
+
+        resultado.classList.add("ativo");
+
+        resultado.innerHTML = `
+      <h3>
+        <i class="fa-solid fa-clipboard-check"></i>
+        Informações da inspeção
+      </h3>
+
+      <div class="item-resultado">
+        <strong>TAG</strong>
+        <span>${escaparTexto(dados.tag)}</span>
+      </div>
+
+      <div class="item-resultado">
+        <strong>Folga do cubo de hélice</strong>
+        <span>${escaparTexto(dados.folgaCuboHelice)}</span>
+      </div>
+
+      <div class="item-resultado">
+        <strong>Âncora</strong>
+        <span>${escaparTexto(dados.ancora)}</span>
+      </div>
+
+      <div class="item-resultado">
+        <strong>Lâmina</strong>
+        <span>${escaparTexto(dados.lamina)}</span>
+      </div>
+
+      <div class="item-resultado">
+        <strong>Escarificador</strong>
+        <span>${escaparTexto(dados.escarificador)}</span>
+      </div>
+
+      <div class="item-resultado">
+        <strong>Pontas</strong>
+        <span>${escaparTexto(dados.pontas)}</span>
+      </div>
+
+      <div class="item-resultado">
+        <strong>Lâminas já foram viradas?</strong>
+        <span>${escaparTexto(dados.laminasViradas)}</span>
+      </div>
+    `;
+      }
+
+      function carregarInformacoesInspecao() {
+        onSnapshot(
+          colecaoInspecoes,
+          function (snapshot) {
+            informacoesInspecao = [];
+
+            snapshot.forEach(function (documento) {
+              const dados = documento.data();
+
+              informacoesInspecao.push({
+                id: documento.id,
+                ...dados,
+              });
+            });
+
+            console.log(
+              "Informações de inspeção carregadas:",
+              informacoesInspecao,
+            );
+
+            preencherTags();
+            atualizarConsulta();
+          },
+          function (erro) {
+            console.error("Erro ao carregar informações da inspeção:", erro);
+
+            if (seletorConsulta) {
+              seletorConsulta.innerHTML = `
+            <option value="">
+              Erro ao carregar TAGs
+            </option>
+          `;
+
+              seletorConsulta.disabled = true;
+            }
+
+            if (resultado) {
+              resultado.classList.add("ativo");
+
+              resultado.innerHTML = `
+            <p>
+              Não foi possível carregar as informações da inspeção.
+              Verifique o console do navegador.
+            </p>
+          `;
+            }
+          },
+        );
+      }
+
+      async function salvarInformacoesInspecao(evento) {
+        evento.preventDefault();
+
+        const dados = {
+          tag: document.getElementById("tag-info-inspecao").value.trim(),
+
+          folgaCuboHelice: document
+            .getElementById("folga-cubo-helice")
+            .value.trim(),
+
+          ancora: document.getElementById("ancora-inspecao").value.trim(),
+
+          lamina: document.getElementById("lamina-inspecao").value.trim(),
+
+          escarificador: document
+            .getElementById("escarificador-inspecao")
+            .value.trim(),
+
+          pontas: document.getElementById("pontas-inspecao").value.trim(),
+
+          laminasViradas: document.getElementById("laminas-viradas").value,
+
+          criadoEm: serverTimestamp(),
+        };
+
+        const camposObrigatorios = [
+          dados.tag,
+          dados.folgaCuboHelice,
+          dados.ancora,
+          dados.lamina,
+          dados.escarificador,
+          dados.pontas,
+          dados.laminasViradas,
+        ];
+
+        const existeCampoVazio = camposObrigatorios.some(function (campo) {
+          return !campo;
+        });
+
+        if (existeCampoVazio) {
+          alert("Preencha todos os campos das informações de inspeção.");
+          return;
+        }
+
+        try {
+          await addDoc(colecaoInspecoes, dados);
+
+          alert("Informações de inspeção salvas com sucesso!");
+
+          formulario.reset();
+
+          // O onSnapshot atualizará automaticamente a lista de TAGs.
+        } catch (erro) {
+          console.error("Erro ao salvar informações de inspeção:", erro);
+
+          alert(
+            "Não foi possível salvar as informações. Verifique as permissões do Firebase.",
+          );
+        }
+      }
+
+      if (formulario) {
+        formulario.addEventListener("submit", salvarInformacoesInspecao);
+      } else {
+        console.error(
+          "Formulário #form-informacoes-inspecao não foi encontrado.",
+        );
+      }
+
+      if (botaoLimpar && formulario) {
+        botaoLimpar.addEventListener("click", function () {
+          formulario.reset();
+        });
+      }
+
+      if (seletorConsulta) {
+        seletorConsulta.addEventListener("change", atualizarConsulta);
+      }
+
+      carregarInformacoesInspecao();
     </script>
     <script>
       if ("serviceWorker" in navigator) {
