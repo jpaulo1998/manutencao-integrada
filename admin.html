@@ -336,7 +336,7 @@
       </button>
     </div>
 
-    <main class="painel">
+    <main class="painel" id="painel" style="visibility: hidden">
       <div class="stats">
         <div class="stat-card">
           <i class="fa-solid fa-database"></i>
@@ -471,35 +471,20 @@
         onSnapshot,
         query,
         orderBy,
+        getDoc,
       } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-      import { db } from "./js/firebase-config.js";
+      import {
+        onAuthStateChanged,
+        signOut,
+      } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+      import { auth, db } from "./js/firebase-config.js";
 
       let todosRegistros = [];
 
-      function verificarSessao() {
-        const sessao =
-          localStorage.getItem("lubeasy_sessao") ||
-          sessionStorage.getItem("lubeasy_sessao");
-
-        if (!sessao) {
-          window.location.href = "login.html";
-          return null;
-        }
-
-        try {
-          return JSON.parse(sessao);
-        } catch (erro) {
-          localStorage.removeItem("lubeasy_sessao");
-          sessionStorage.removeItem("lubeasy_sessao");
-          window.location.href = "login.html";
-          return null;
-        }
-      }
-
-      window.fazerLogout = function () {
-        localStorage.removeItem("lubeasy_sessao");
-        sessionStorage.removeItem("lubeasy_sessao");
+      window.fazerLogout = async function () {
+        await signOut(auth);
         window.location.href = "login.html";
       };
 
@@ -686,12 +671,7 @@
         }
       }
 
-      const sessao = verificarSessao();
-
-      if (sessao) {
-        document.getElementById("nome-usuario").textContent =
-          sessao.usuario || "Administrador";
-
+      function iniciarRegistros() {
         const consulta = query(
           collection(db, "equipamentos"),
           orderBy("equipamento"),
@@ -725,13 +705,46 @@
           },
         );
       }
+
+      // Só entra quem está logado no Firebase E tem admins/{uid} ativo.
+      let registrosIniciados = false;
+
+      onAuthStateChanged(auth, async function (usuario) {
+        if (!usuario) {
+          window.location.href = "login.html";
+          return;
+        }
+
+        try {
+          const documento = await getDoc(doc(db, "admins", usuario.uid));
+
+          if (!documento.exists() || documento.data().ativo !== true) {
+            await signOut(auth);
+            window.location.href = "login.html";
+            return;
+          }
+        } catch (erro) {
+          console.error("Erro ao verificar administrador:", erro);
+          window.location.href = "login.html";
+          return;
+        }
+
+        document.getElementById("nome-usuario").textContent =
+          usuario.email || "Administrador";
+        document.getElementById("painel").style.visibility = "visible";
+
+        if (!registrosIniciados) {
+          registrosIniciados = true;
+          iniciarRegistros();
+        }
+      });
     </script>
 
     <script>
       if ("serviceWorker" in navigator) {
         window.addEventListener("load", function () {
           navigator.serviceWorker
-            .register("./serviceworker.js")
+            .register("./service-worker.js")
             .then(function (registro) {
               console.log("Service Worker registrado:", registro);
             })

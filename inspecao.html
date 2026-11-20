@@ -7,6 +7,8 @@
     <title>Manutenção Integrada - Inspeção</title>
 
     <link rel="manifest" href="./manifest.json" />
+    <link rel="icon" href="./icon.svg" type="image/svg+xml" />
+    <meta name="theme-color" content="#2176c7" />
 
     <link
       rel="stylesheet"
@@ -586,6 +588,26 @@
 
         <!-- GUIA NOTAS -->
         <div id="conteudo-notas" class="conteudo-guia ativo">
+          <div
+            id="aviso-notas-locais"
+            class="status sucesso"
+            style="display: none; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap"
+          >
+            <span>
+              Há <strong id="qtd-notas-locais">0</strong> nota(s) antiga(s)
+              salvas só neste aparelho.
+            </span>
+
+            <button
+              type="button"
+              class="btn btn-principal btn-pequeno"
+              onclick="enviarNotasLocais()"
+            >
+              <i class="fa-solid fa-cloud-arrow-up"></i>
+              Enviar para a nuvem
+            </button>
+          </div>
+
           <section class="secao">
             <h2 class="secao-titulo">
               <i class="fa-solid fa-file-circle-plus"></i>
@@ -679,6 +701,7 @@
                   <th>Criação</th>
                   <th>Execução</th>
                   <th>Criticidade</th>
+                  <th>Criado por</th>
                   <th>Ação</th>
                 </tr>
               </thead>
@@ -896,11 +919,14 @@
 
       const CHAVE_NOTAS = "lubeasy_carteira_notas";
 
-      const CHAVE_SESSAO = "lubeasy_carteira_sessao";
-
       const atuaisRef = collection(db, "inspecoes_atuais");
 
       const historicoRef = collection(db, "inspecoes_historico");
+
+      const notasRef = collection(db, "notas");
+
+      let notasEquipe = [];
+      let cancelarNotas = null;
 
       let registrosAtuais = [];
       let usuarioAtual = null;
@@ -943,7 +969,11 @@
       }
 
       function dataAtual() {
-        return new Date().toISOString().slice(0, 10);
+        // Data local do aparelho (toISOString usa UTC e "pula" o dia após 21h).
+        const agora = new Date();
+        const mes = String(agora.getMonth() + 1).padStart(2, "0");
+        const dia = String(agora.getDate()).padStart(2, "0");
+        return agora.getFullYear() + "-" + mes + "-" + dia;
       }
 
       function lerNotas() {
@@ -1033,62 +1063,62 @@
        * NOTAS
        */
 
-      $("form-nota").addEventListener("submit", (evento) => {
+      $("form-nota").addEventListener("submit", async (evento) => {
         evento.preventDefault();
 
-        const email = localStorage.getItem(CHAVE_SESSAO);
-
-        if (!email) {
+        if (!usuarioAtual) {
           abrirCarteira();
           return;
         }
 
-        const notas = lerNotas();
+        const botao = evento.submitter;
+        if (botao) botao.disabled = true;
 
-        notas.push({
-          id: gerarId(),
-          usuario: email,
-          numero: $("numero-nota").value.trim(),
+        try {
+          await addDoc(notasRef, {
+            numero: $("numero-nota").value.trim(),
+            equipamento: $("equipamento-nota").value.trim(),
+            tag: $("tag-nota").value.trim().toUpperCase(),
+            descricao: $("descricao-nota").value.trim(),
+            dataCriacao: $("data-criacao").value,
+            dataExecucao: $("data-execucao").value,
+            criticidade: $("criticidade-nota").value,
+            criadoPorUid: usuarioAtual.uid,
+            criadoPorEmail: usuarioAtual.email || "",
+            criadaEm: serverTimestamp(),
+          });
 
-          equipamento: $("equipamento-nota").value.trim(),
+          $("form-nota").reset();
+          $("data-criacao").value = dataAtual();
 
-          tag: $("tag-nota").value.trim().toUpperCase(),
-
-          descricao: $("descricao-nota").value.trim(),
-
-          dataCriacao: $("data-criacao").value,
-
-          dataExecucao: $("data-execucao").value,
-
-          criticidade: $("criticidade-nota").value,
-
-          criadaEm: new Date().toISOString(),
-        });
-
-        localStorage.setItem(CHAVE_NOTAS, JSON.stringify(notas));
-
-        $("form-nota").reset();
-
-        $("data-criacao").value = dataAtual();
-
-        renderizarNotas();
-
-        alert("Nota cadastrada com sucesso.");
+          alert("Nota cadastrada com sucesso.");
+        } catch (erro) {
+          console.error("Erro ao cadastrar nota:", erro);
+          alert("Não foi possível salvar a nota. Verifique sua conexão.");
+        } finally {
+          if (botao) botao.disabled = false;
+        }
       });
 
       function renderizarNotas() {
-        const email = localStorage.getItem(CHAVE_SESSAO);
-
-        const notas = lerNotas().filter((nota) => nota.usuario === email);
-
         const lista = $("lista-notas");
 
         lista.innerHTML = "";
+
+        // Execução planejada mais próxima primeiro.
+        const notas = [...notasEquipe].sort((a, b) =>
+          String(a.dataExecucao || "").localeCompare(
+            String(b.dataExecucao || ""),
+          ),
+        );
 
         $("sem-notas").style.display = notas.length ? "none" : "block";
 
         notas.forEach((nota) => {
           const linha = document.createElement("tr");
+
+          const podeExcluir =
+            usuarioAtual && nota.criadoPorUid === usuarioAtual.uid;
 
           linha.innerHTML = `
             <td>${escapar(nota.numero)}</td>
@@ -1098,33 +1128,137 @@
             <td>${formatarData(nota.dataCriacao)}</td>
             <td>${formatarData(nota.dataExecucao)}</td>
             <td>${escapar(nota.criticidade)}</td>
+            <td>${escapar(nota.criadoPorEmail || "-")}</td>
             <td>
-              <button
-                type="button"
-                class="btn btn-perigo btn-pequeno"
-              >
-                <i class="fa-solid fa-trash"></i>
-              </button>
+              ${
+                podeExcluir
+                  ? `<button type="button" class="btn btn-perigo btn-pequeno" title="Excluir nota">
+                       <i class="fa-solid fa-trash"></i>
+                     </button>`
+                  : "-"
+              }
             </td>
           `;
 
-          linha.querySelector("button").addEventListener("click", () => {
-            if (!confirm("Deseja excluir esta nota?")) {
-              return;
-            }
+          if (podeExcluir) {
+            linha.querySelector("button").addEventListener("click", async () => {
+              if (!confirm("Deseja excluir esta nota?")) {
+                return;
+              }
 
-            const atualizadas = lerNotas().filter(
-              (item) => item.id !== nota.id,
-            );
-
-            localStorage.setItem(CHAVE_NOTAS, JSON.stringify(atualizadas));
-
-            renderizarNotas();
-          });
+              try {
+                await deleteDoc(doc(db, "notas", nota.id));
+              } catch (erro) {
+                console.error("Erro ao excluir nota:", erro);
+                alert("Não foi possível excluir a nota.");
+              }
+            });
+          }
 
           lista.appendChild(linha);
         });
       }
+
+      function ouvirNotas() {
+        if (cancelarNotas) {
+          cancelarNotas();
+          cancelarNotas = null;
+        }
+
+        notasEquipe = [];
+
+        if (!usuarioAtual) {
+          renderizarNotas();
+          return;
+        }
+
+        cancelarNotas = onSnapshot(
+          notasRef,
+          (snapshot) => {
+            notasEquipe = [];
+
+            snapshot.forEach((documento) => {
+              notasEquipe.push({ id: documento.id, ...documento.data() });
+            });
+
+            $("sem-notas").textContent = "Nenhuma nota cadastrada.";
+            renderizarNotas();
+          },
+          (erro) => {
+            console.error("Erro ao carregar notas:", erro);
+            $("lista-notas").innerHTML = "";
+            $("sem-notas").textContent = "Não foi possível carregar as notas.";
+            $("sem-notas").style.display = "block";
+          },
+        );
+      }
+
+      /*
+       * NOTAS ANTIGAS (salvas só no navegador) -> NUVEM
+       */
+
+      function notasLocaisDoUsuario() {
+        if (!usuarioAtual || !usuarioAtual.email) {
+          return [];
+        }
+
+        return lerNotas().filter((nota) => nota.usuario === usuarioAtual.email);
+      }
+
+      function atualizarAvisoNotasLocais() {
+        const quantidade = notasLocaisDoUsuario().length;
+
+        $("qtd-notas-locais").textContent = quantidade;
+        $("aviso-notas-locais").style.display = quantidade ? "flex" : "none";
+      }
+
+      window.enviarNotasLocais = async function () {
+        const locais = notasLocaisDoUsuario();
+
+        if (!locais.length) {
+          atualizarAvisoNotasLocais();
+          return;
+        }
+
+        let enviadas = 0;
+
+        try {
+          for (const nota of locais) {
+            await addDoc(notasRef, {
+              numero: nota.numero || "",
+              equipamento: nota.equipamento || "",
+              tag: nota.tag || "",
+              descricao: nota.descricao || "",
+              dataCriacao: nota.dataCriacao || "",
+              dataExecucao: nota.dataExecucao || "",
+              criticidade: nota.criticidade || "",
+              criadoPorUid: usuarioAtual.uid,
+              criadoPorEmail: usuarioAtual.email || "",
+              criadaEm: serverTimestamp(),
+              importadaDoAparelho: true,
+            });
+
+            // Remove do aparelho assim que sobe, para não duplicar se falhar no meio.
+            localStorage.setItem(
+              CHAVE_NOTAS,
+              JSON.stringify(lerNotas().filter((item) => item.id !== nota.id)),
+            );
+
+            enviadas++;
+          }
+
+          alert(enviadas + " nota(s) enviada(s) para a nuvem.");
+        } catch (erro) {
+          console.error("Erro ao enviar notas antigas:", erro);
+          alert(
+            "Foram enviadas " +
+              enviadas +
+              " nota(s). As demais continuam no aparelho; tente de novo.",
+          );
+        }
+
+        atualizarAvisoNotasLocais();
+      };
 
       /*
        * CONSULTA PÚBLICA
@@ -1490,6 +1624,13 @@
             itens.push(documento.data());
           });
 
+          const tempo = (item) =>
+            item.arquivadoEm && item.arquivadoEm.toMillis
+              ? item.arquivadoEm.toMillis()
+              : 0;
+
+          itens.sort((a, b) => tempo(b) - tempo(a));
+
           if (!itens.length) {
             $("lista-historico").innerHTML =
               "Ainda não existem versões anteriores para esta TAG.";
@@ -1503,6 +1644,7 @@
                   <div class="historico-item">
                     <strong>
                       Versão anterior ${indice + 1}
+                      ${item.motivo === "apagado" ? "(apagada)" : ""}
                     </strong>
                     <br />
 
@@ -1571,7 +1713,23 @@
         }
 
         try {
-          await deleteDoc(doc(db, "inspecoes_atuais", idDaTag(tag)));
+          const referencia = doc(db, "inspecoes_atuais", idDaTag(tag));
+
+          const atual = await getDoc(referencia);
+
+          // Guarda a versão atual no histórico antes de apagar.
+          if (atual.exists()) {
+            await addDoc(historicoRef, {
+              ...atual.data(),
+              tag,
+              motivo: "apagado",
+              arquivadoPorUid: usuarioAtual.uid,
+              arquivadoPorEmail: usuarioAtual.email || "",
+              arquivadoEm: serverTimestamp(),
+            });
+          }
+
+          await deleteDoc(referencia);
 
           limparCamposTecnicos(true);
 
@@ -1633,8 +1791,6 @@
             senha,
           );
 
-          localStorage.setItem(CHAVE_SESSAO, resultado.user.email || email);
-
           fecharLogin();
           mostrarCarteira();
         } catch (erro) {
@@ -1668,8 +1824,6 @@
             senha,
           );
 
-          localStorage.setItem(CHAVE_SESSAO, resultado.user.email || email);
-
           fecharLogin();
           mostrarCarteira();
 
@@ -1687,8 +1841,6 @@
         }
 
         await signOut(auth);
-
-        localStorage.removeItem(CHAVE_SESSAO);
 
         fecharCarteira();
       };
@@ -1726,12 +1878,8 @@
       onAuthStateChanged(auth, (usuario) => {
         usuarioAtual = usuario;
 
-        if (usuario) {
-          localStorage.setItem(CHAVE_SESSAO, usuario.email || "");
-        } else {
-          localStorage.removeItem(CHAVE_SESSAO);
-        }
-
+        ouvirNotas();
+        atualizarAvisoNotasLocais();
         verificarAutorizacao(usuario);
       });
 
@@ -1742,7 +1890,7 @@
       if ("serviceWorker" in navigator) {
         window.addEventListener("load", () => {
           navigator.serviceWorker
-            .register("./serviceworker.js")
+            .register("./service-worker.js")
             .catch((erro) => {
               console.error("Erro ao registrar Service Worker:", erro);
             });
