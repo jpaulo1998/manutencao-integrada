@@ -142,6 +142,21 @@
         transition: border-color 0.2s;
       }
 
+      .grupo select {
+        padding: 10px 14px;
+        border: 2px solid #d0dce8;
+        border-radius: 8px;
+        font-size: 14px;
+        color: #0d2b4e;
+        background: #f0f4f8;
+        outline: none;
+      }
+
+      .grupo input:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+      }
+
       .grupo input:focus {
         border-color: #2176c7;
       }
@@ -362,6 +377,98 @@
         cursor: pointer;
       }
 
+      .checklist {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 10px;
+        margin-bottom: 20px;
+      }
+
+      .check-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 12px;
+        border: 2px solid #d0dce8;
+        border-radius: 8px;
+        background: #f8fbff;
+        cursor: pointer;
+      }
+
+      .check-item.marcado {
+        border-color: #2176c7;
+        background: #e8f0fe;
+      }
+
+      .grupo .check-item input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        padding: 0;
+        flex: 0 0 auto;
+      }
+
+      .check-textos {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        min-width: 0;
+      }
+
+      .check-textos strong {
+        font-size: 14px;
+        color: #0d2b4e;
+      }
+
+      .check-textos small {
+        font-size: 12px;
+        color: #777;
+      }
+
+      .check-qtd {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+        color: #555;
+      }
+
+      .grupo .check-qtd input {
+        width: 64px;
+        padding: 6px 8px;
+      }
+
+      .linha-botoes {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .btn-sec {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        border: none;
+        padding: 12px 20px;
+        border-radius: 8px;
+        background: #e8f0f7;
+        color: #0d2b4e;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        margin-top: 4px;
+      }
+
+      .acoes-tabela {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+      }
+
+      .btn-editar {
+        background: #e8f0fe;
+        color: #2176c7;
+      }
+
       .ajuda {
         font-size: 13px;
         color: #555;
@@ -517,7 +624,17 @@
           onclick="mostrarAba('equipamentos')"
         >
           <i class="fa-solid fa-oil-can"></i>
-          Equipamentos
+          Equipamentos lubrificação
+        </button>
+
+        <button
+          type="button"
+          class="aba-btn"
+          id="aba-btn-tecnica"
+          onclick="mostrarAba('tecnica')"
+        >
+          <i class="fa-solid fa-clipboard-check"></i>
+          Inspeção técnica
         </button>
 
         <button
@@ -641,6 +758,214 @@
 
       </div>
 
+      <div class="aba" id="aba-tecnica">
+      <h2>
+        <i class="fa-solid fa-tags"></i>
+        <span id="titulo-form-tag">Cadastrar TAG</span>
+      </h2>
+
+      <p class="ajuda">
+        Cadastre a TAG e o equipamento e marque os elementos que o inspetor
+        deve preencher. Nas listas numeradas, informe a quantidade
+        (ex.: 3 pontas).
+      </p>
+
+      <div class="form-grid">
+        <div class="grupo">
+          <label for="inp-tag">
+            <i class="fa-solid fa-tag"></i>
+            TAG
+          </label>
+
+          <input id="inp-tag" type="text" maxlength="60" placeholder="Ex: TR-01" />
+        </div>
+
+        <div class="grupo">
+          <label for="inp-tag-equip">
+            <i class="fa-solid fa-gears"></i>
+            Equipamento
+          </label>
+
+          <input
+            id="inp-tag-equip"
+            type="text"
+            maxlength="150"
+            placeholder="Ex: Trator de esteira D8"
+          />
+        </div>
+      </div>
+
+      <div class="grupo">
+        <label>
+          <i class="fa-solid fa-list-check"></i>
+          Elementos da inspeção
+        </label>
+
+        <div id="lista-elementos-tag" class="checklist">Carregando...</div>
+      </div>
+
+      <div class="linha-botoes">
+        <button type="button" class="btn-add" id="btn-salvar-tag" onclick="salvarTag()">
+          <i class="fa-solid fa-floppy-disk"></i>
+          Salvar TAG
+        </button>
+
+        <button
+          type="button"
+          class="btn-sec"
+          id="btn-cancelar-tag"
+          style="display: none"
+          onclick="cancelarEdicaoTag()"
+        >
+          Cancelar edição
+        </button>
+      </div>
+
+      <div class="msg-sucesso" id="msg-sucesso-tag">
+        <i class="fa-solid fa-circle-check"></i>
+        <span id="texto-sucesso-tag"></span>
+      </div>
+
+      <div class="msg-erro" id="msg-erro-tag">
+        <i class="fa-solid fa-circle-exclamation"></i>
+        <span id="texto-erro-tag"></span>
+      </div>
+
+      <h2 style="margin-top: 32px">
+        <i class="fa-solid fa-list"></i>
+        TAGs cadastradas
+      </h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th>TAG</th>
+            <th>Equipamento</th>
+            <th>Elementos</th>
+            <th>Ação</th>
+          </tr>
+        </thead>
+
+        <tbody id="tabela-tags">
+          <tr>
+            <td colspan="4" class="vazio">Carregando TAGs...</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2 style="margin-top: 40px">
+        <i class="fa-solid fa-shapes"></i>
+        <span id="titulo-form-elemento">Novo elemento de inspeção</span>
+      </h2>
+
+      <p class="ajuda">
+        Elementos são os itens que podem ser usados nas TAGs. Crie novos
+        quando precisar (ex.: Pneus, Corrente, Mangueiras).
+      </p>
+
+      <div class="form-grid">
+        <div class="grupo">
+          <label for="inp-el-nome">
+            <i class="fa-solid fa-font"></i>
+            Nome
+          </label>
+
+          <input id="inp-el-nome" type="text" maxlength="80" placeholder="Ex: Pneus" />
+        </div>
+
+        <div class="grupo">
+          <label for="inp-el-tipo">
+            <i class="fa-solid fa-sliders"></i>
+            Tipo
+          </label>
+
+          <select id="inp-el-tipo" onchange="atualizarCamposTipo()">
+            <option value="texto">Texto livre (um campo)</option>
+            <option value="numerado">Lista numerada (Item 1, Item 2...)</option>
+            <option value="nomeado">Itens com nomes (ex.: LE, LD)</option>
+            <option value="opcao">Sim / Não / N/A</option>
+          </select>
+        </div>
+
+        <div class="grupo" id="grupo-el-prefixo" style="display: none">
+          <label for="inp-el-prefixo">
+            <i class="fa-solid fa-list-ol"></i>
+            Nome de cada item
+          </label>
+
+          <input
+            id="inp-el-prefixo"
+            type="text"
+            maxlength="40"
+            placeholder="Ex: Pneu  →  Pneu 1, Pneu 2..."
+          />
+        </div>
+
+        <div class="grupo" id="grupo-el-itens" style="display: none">
+          <label for="inp-el-itens">
+            <i class="fa-solid fa-list"></i>
+            Itens (separados por vírgula)
+          </label>
+
+          <input
+            id="inp-el-itens"
+            type="text"
+            maxlength="300"
+            placeholder="Ex: Canto LE, Canto LD"
+          />
+        </div>
+      </div>
+
+      <div class="linha-botoes">
+        <button
+          type="button"
+          class="btn-add"
+          id="btn-salvar-elemento"
+          onclick="salvarElemento()"
+        >
+          <i class="fa-solid fa-plus"></i>
+          Adicionar elemento
+        </button>
+
+        <button
+          type="button"
+          class="btn-sec"
+          id="btn-cancelar-elemento"
+          style="display: none"
+          onclick="cancelarEdicaoElemento()"
+        >
+          Cancelar edição
+        </button>
+      </div>
+
+      <div class="msg-sucesso" id="msg-sucesso-elemento">
+        <i class="fa-solid fa-circle-check"></i>
+        <span id="texto-sucesso-elemento"></span>
+      </div>
+
+      <div class="msg-erro" id="msg-erro-elemento">
+        <i class="fa-solid fa-circle-exclamation"></i>
+        <span id="texto-erro-elemento"></span>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Elemento</th>
+            <th>Tipo</th>
+            <th>Itens</th>
+            <th>Ação</th>
+          </tr>
+        </thead>
+
+        <tbody id="tabela-elementos">
+          <tr>
+            <td colspan="4" class="vazio">Carregando elementos...</td>
+          </tr>
+        </tbody>
+      </table>
+      </div>
+
       <div class="aba" id="aba-inspetores">
       <h2>
         <i class="fa-solid fa-user-check"></i>
@@ -693,6 +1018,7 @@
         getDoc,
         updateDoc,
         serverTimestamp,
+        setDoc,
       } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
       import {
@@ -701,6 +1027,14 @@
       } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
       import { auth, db } from "./js/firebase-config.js";
+
+      import {
+        ELEMENTOS_PADRAO,
+        TIPOS,
+        idDaTag,
+        ordenarCatalogo,
+        rotulosDoElemento,
+      } from "./js/elementos.js";
 
       let todosRegistros = [];
 
@@ -940,7 +1274,7 @@
       }
 
       window.mostrarAba = function (nome) {
-        ["equipamentos", "inspetores"].forEach((aba) => {
+        ["equipamentos", "tecnica", "inspetores"].forEach((aba) => {
           document
             .getElementById("aba-" + aba)
             .classList.toggle("ativa", aba === nome);
@@ -1081,6 +1415,579 @@
         );
       }
 
+      /*
+       * INSPEÇÃO TÉCNICA: catálogo de elementos e cadastro de TAGs
+       */
+
+      let catalogo = [];
+      let tagsCadastradas = [];
+      let catalogoSemeado = false;
+      let tagEmEdicao = null;
+      let elementoEmEdicao = null;
+      let selecaoTag = {}; // { idElemento: { marcado, quantidade } }
+      let adminAtual = null;
+
+      const $id = (id) => document.getElementById(id);
+
+      function mensagem(grupo, tipo, texto) {
+        const sucesso = $id("msg-sucesso-" + grupo);
+        const erro = $id("msg-erro-" + grupo);
+
+        sucesso.style.display = "none";
+        erro.style.display = "none";
+
+        if (!texto) {
+          return;
+        }
+
+        $id("texto-" + tipo + "-" + grupo).textContent = texto;
+
+        const caixa = tipo === "sucesso" ? sucesso : erro;
+        caixa.style.display = "flex";
+
+        if (tipo === "sucesso") {
+          setTimeout(() => (caixa.style.display = "none"), 3000);
+        }
+      }
+
+      function descricaoItens(elemento, quantidade) {
+        if (elemento.tipo === "numerado") {
+          const prefixo = elemento.prefixo || elemento.nome;
+          return quantidade
+            ? rotulosDoElemento(elemento, quantidade).join(", ")
+            : prefixo + " 1, " + prefixo + " 2...";
+        }
+
+        if (elemento.tipo === "nomeado") {
+          return (elemento.itens || []).join(", ");
+        }
+
+        if (elemento.tipo === "opcao") {
+          return "Sim / Não / N/A";
+        }
+
+        return "Um campo de texto";
+      }
+
+      function botaoAcao(texto, icone, classe, aoClicar) {
+        const botao = document.createElement("button");
+        botao.type = "button";
+        botao.className = "btn-acao " + classe;
+        botao.innerHTML = '<i class="fa-solid ' + icone + '"></i> ';
+        botao.append(texto);
+        botao.addEventListener("click", aoClicar);
+        return botao;
+      }
+
+      function linhaVazia(tbody, colunas, texto) {
+        const linha = document.createElement("tr");
+        const celula = document.createElement("td");
+        celula.colSpan = colunas;
+        celula.className = "vazio";
+        celula.textContent = texto;
+        linha.appendChild(celula);
+        tbody.appendChild(linha);
+      }
+
+      /* ---------- Formulário da TAG ---------- */
+
+      function renderChecklistTag() {
+        const caixa = $id("lista-elementos-tag");
+        caixa.innerHTML = "";
+
+        if (!catalogo.length) {
+          caixa.textContent = "Nenhum elemento cadastrado.";
+          return;
+        }
+
+        catalogo.forEach((elemento) => {
+          const estado = selecaoTag[elemento.id] || {
+            marcado: false,
+            quantidade: 1,
+          };
+
+          const item = document.createElement("label");
+          item.className = "check-item" + (estado.marcado ? " marcado" : "");
+
+          const marcar = document.createElement("input");
+          marcar.type = "checkbox";
+          marcar.checked = estado.marcado;
+
+          const textos = document.createElement("span");
+          textos.className = "check-textos";
+
+          const nome = document.createElement("strong");
+          nome.textContent = elemento.nome;
+
+          const detalhe = document.createElement("small");
+          detalhe.textContent = descricaoItens(elemento);
+
+          textos.append(nome, detalhe);
+          item.append(marcar, textos);
+
+          let quantidade = null;
+
+          if (elemento.tipo === "numerado") {
+            const caixaQtd = document.createElement("span");
+            caixaQtd.className = "check-qtd";
+            caixaQtd.append("Qtd.");
+
+            quantidade = document.createElement("input");
+            quantidade.type = "number";
+            quantidade.min = "1";
+            quantidade.max = "50";
+            quantidade.value = estado.quantidade || 1;
+            quantidade.disabled = !estado.marcado;
+            quantidade.setAttribute("aria-label", "Quantidade de " + elemento.nome);
+
+            quantidade.addEventListener("input", () => {
+              selecaoTag[elemento.id] = {
+                marcado: marcar.checked,
+                quantidade: quantidade.value,
+              };
+            });
+
+            caixaQtd.appendChild(quantidade);
+            item.appendChild(caixaQtd);
+          }
+
+          marcar.addEventListener("change", () => {
+            selecaoTag[elemento.id] = {
+              marcado: marcar.checked,
+              quantidade: quantidade ? quantidade.value : 1,
+            };
+
+            item.classList.toggle("marcado", marcar.checked);
+
+            if (quantidade) {
+              quantidade.disabled = !marcar.checked;
+            }
+          });
+
+          caixa.appendChild(item);
+        });
+      }
+
+      function limparFormTag() {
+        tagEmEdicao = null;
+        selecaoTag = {};
+
+        $id("inp-tag").value = "";
+        $id("inp-tag").disabled = false;
+        $id("inp-tag-equip").value = "";
+        $id("titulo-form-tag").textContent = "Cadastrar TAG";
+        $id("btn-salvar-tag").innerHTML =
+          '<i class="fa-solid fa-floppy-disk"></i> Salvar TAG';
+        $id("btn-cancelar-tag").style.display = "none";
+
+        renderChecklistTag();
+      }
+
+      window.cancelarEdicaoTag = function () {
+        limparFormTag();
+        mensagem("tag");
+      };
+
+      function editarTag(cadastro) {
+        tagEmEdicao = cadastro.id;
+        selecaoTag = {};
+
+        (cadastro.elementos || []).forEach((config) => {
+          selecaoTag[config.id] = {
+            marcado: true,
+            quantidade: config.quantidade || 1,
+          };
+        });
+
+        $id("inp-tag").value = cadastro.tag || "";
+        $id("inp-tag").disabled = true;
+        $id("inp-tag-equip").value = cadastro.equipamento || "";
+        $id("titulo-form-tag").textContent = "Editar TAG " + (cadastro.tag || "");
+        $id("btn-salvar-tag").innerHTML =
+          '<i class="fa-solid fa-floppy-disk"></i> Salvar alterações';
+        $id("btn-cancelar-tag").style.display = "flex";
+
+        renderChecklistTag();
+        mensagem("tag");
+        $id("aba-tecnica").scrollIntoView({ behavior: "smooth" });
+      }
+
+      window.salvarTag = async function () {
+        mensagem("tag");
+
+        const tag = $id("inp-tag").value.trim().toUpperCase();
+        const equipamento = $id("inp-tag-equip").value.trim();
+
+        if (!tag || !equipamento) {
+          mensagem("tag", "erro", "Informe a TAG e o equipamento.");
+          return;
+        }
+
+        const elementos = catalogo
+          .filter((el) => selecaoTag[el.id]?.marcado)
+          .map((el) =>
+            el.tipo === "numerado"
+              ? {
+                  id: el.id,
+                  quantidade: Math.min(
+                    50,
+                    Math.max(1, parseInt(selecaoTag[el.id].quantidade, 10) || 1),
+                  ),
+                }
+              : { id: el.id },
+          );
+
+        if (!elementos.length) {
+          mensagem("tag", "erro", "Marque pelo menos um elemento da inspeção.");
+          return;
+        }
+
+        const id = idDaTag(tag);
+
+        if (!tagEmEdicao && tagsCadastradas.some((t) => t.id === id)) {
+          mensagem(
+            "tag",
+            "erro",
+            "A TAG " + tag + " já está cadastrada. Use Editar na lista abaixo.",
+          );
+          return;
+        }
+
+        const botao = $id("btn-salvar-tag");
+        botao.disabled = true;
+
+        try {
+          await setDoc(doc(db, "tags_inspecao", id), {
+            tag,
+            equipamento,
+            elementos,
+            atualizadoEm: serverTimestamp(),
+            atualizadoPorEmail: adminAtual?.email || "",
+          });
+
+          const editando = !!tagEmEdicao;
+          limparFormTag();
+          mensagem(
+            "tag",
+            "sucesso",
+            editando ? "TAG " + tag + " atualizada." : "TAG " + tag + " cadastrada.",
+          );
+        } catch (erro) {
+          console.error("Erro ao salvar TAG:", erro);
+          mensagem("tag", "erro", "Não foi possível salvar a TAG.");
+        } finally {
+          botao.disabled = false;
+        }
+      };
+
+      async function excluirTag(cadastro) {
+        if (
+          !confirm(
+            "Excluir o cadastro da TAG " +
+              cadastro.tag +
+              "? As inspeções já salvas desta TAG são mantidas.",
+          )
+        ) {
+          return;
+        }
+
+        try {
+          await deleteDoc(doc(db, "tags_inspecao", cadastro.id));
+
+          if (tagEmEdicao === cadastro.id) {
+            limparFormTag();
+          }
+        } catch (erro) {
+          console.error("Erro ao excluir TAG:", erro);
+          mensagem("tag", "erro", "Não foi possível excluir a TAG.");
+        }
+      }
+
+      function renderTags() {
+        const tbody = $id("tabela-tags");
+        tbody.innerHTML = "";
+
+        if (!tagsCadastradas.length) {
+          linhaVazia(tbody, 4, "Nenhuma TAG cadastrada.");
+          return;
+        }
+
+        const porId = new Map(catalogo.map((el) => [el.id, el]));
+
+        tagsCadastradas.forEach((cadastro) => {
+          const linha = document.createElement("tr");
+
+          linha.appendChild(criarCelula(cadastro.tag));
+          linha.appendChild(criarCelula(cadastro.equipamento));
+
+          const resumo = (cadastro.elementos || [])
+            .map((config) => {
+              const el = porId.get(config.id);
+
+              if (!el) {
+                return "(elemento removido)";
+              }
+
+              return el.tipo === "numerado"
+                ? el.nome + " (" + (config.quantidade || 1) + ")"
+                : el.nome;
+            })
+            .join(", ");
+
+          linha.appendChild(criarCelula(resumo));
+
+          const celulaAcao = document.createElement("td");
+          const acoes = document.createElement("div");
+          acoes.className = "acoes-tabela";
+
+          acoes.append(
+            botaoAcao("Editar", "fa-pen", "btn-editar", () => editarTag(cadastro)),
+            botaoAcao("Excluir", "fa-trash", "btn-revogar", () => excluirTag(cadastro)),
+          );
+
+          celulaAcao.appendChild(acoes);
+          linha.appendChild(celulaAcao);
+          tbody.appendChild(linha);
+        });
+      }
+
+      /* ---------- Catálogo de elementos ---------- */
+
+      window.atualizarCamposTipo = function () {
+        const tipo = $id("inp-el-tipo").value;
+        $id("grupo-el-prefixo").style.display = tipo === "numerado" ? "flex" : "none";
+        $id("grupo-el-itens").style.display = tipo === "nomeado" ? "flex" : "none";
+      };
+
+      function limparFormElemento() {
+        elementoEmEdicao = null;
+
+        $id("inp-el-nome").value = "";
+        $id("inp-el-tipo").value = "texto";
+        $id("inp-el-prefixo").value = "";
+        $id("inp-el-itens").value = "";
+        $id("titulo-form-elemento").textContent = "Novo elemento de inspeção";
+        $id("btn-salvar-elemento").innerHTML =
+          '<i class="fa-solid fa-plus"></i> Adicionar elemento';
+        $id("btn-cancelar-elemento").style.display = "none";
+
+        atualizarCamposTipo();
+      }
+
+      window.cancelarEdicaoElemento = function () {
+        limparFormElemento();
+        mensagem("elemento");
+      };
+
+      function editarElemento(elemento) {
+        elementoEmEdicao = elemento.id;
+
+        $id("inp-el-nome").value = elemento.nome || "";
+        $id("inp-el-tipo").value = elemento.tipo || "texto";
+        $id("inp-el-prefixo").value = elemento.prefixo || "";
+        $id("inp-el-itens").value = (elemento.itens || []).join(", ");
+        $id("titulo-form-elemento").textContent = "Editar elemento " + elemento.nome;
+        $id("btn-salvar-elemento").innerHTML =
+          '<i class="fa-solid fa-floppy-disk"></i> Salvar alterações';
+        $id("btn-cancelar-elemento").style.display = "flex";
+
+        atualizarCamposTipo();
+        mensagem("elemento");
+        $id("titulo-form-elemento").scrollIntoView({ behavior: "smooth" });
+      }
+
+      window.salvarElemento = async function () {
+        mensagem("elemento");
+
+        const nome = $id("inp-el-nome").value.trim();
+        const tipo = $id("inp-el-tipo").value;
+        const prefixo = $id("inp-el-prefixo").value.trim();
+        const itens = $id("inp-el-itens")
+          .value.split(",")
+          .map((item) => item.trim())
+          .filter(Boolean);
+
+        if (!nome) {
+          mensagem("elemento", "erro", "Informe o nome do elemento.");
+          return;
+        }
+
+        if (tipo === "nomeado" && !itens.length) {
+          mensagem("elemento", "erro", "Informe os nomes dos itens, separados por vírgula.");
+          return;
+        }
+
+        const repetido = catalogo.some(
+          (el) =>
+            el.id !== elementoEmEdicao &&
+            String(el.nome).toLowerCase() === nome.toLowerCase(),
+        );
+
+        if (repetido) {
+          mensagem("elemento", "erro", "Já existe um elemento com este nome.");
+          return;
+        }
+
+        const dados = {
+          nome,
+          tipo,
+          prefixo: tipo === "numerado" ? prefixo || nome : "",
+          itens: tipo === "nomeado" ? itens : [],
+        };
+
+        const botao = $id("btn-salvar-elemento");
+        botao.disabled = true;
+
+        try {
+          if (elementoEmEdicao) {
+            await updateDoc(doc(db, "elementos_inspecao", elementoEmEdicao), dados);
+          } else {
+            const ordem =
+              Math.max(0, ...catalogo.map((el) => Number(el.ordem) || 0)) + 1;
+
+            await addDoc(collection(db, "elementos_inspecao"), { ...dados, ordem });
+          }
+
+          const editando = !!elementoEmEdicao;
+          limparFormElemento();
+          mensagem(
+            "elemento",
+            "sucesso",
+            editando ? "Elemento atualizado." : "Elemento " + nome + " criado.",
+          );
+        } catch (erro) {
+          console.error("Erro ao salvar elemento:", erro);
+          mensagem("elemento", "erro", "Não foi possível salvar o elemento.");
+        } finally {
+          botao.disabled = false;
+        }
+      };
+
+      async function excluirElemento(elemento) {
+        const usadas = tagsCadastradas
+          .filter((t) => (t.elementos || []).some((c) => c.id === elemento.id))
+          .map((t) => t.tag);
+
+        if (usadas.length) {
+          alert(
+            "O elemento " +
+              elemento.nome +
+              " está sendo usado nas TAGs: " +
+              usadas.join(", ") +
+              ".\nRemova-o dessas TAGs antes de excluir.",
+          );
+          return;
+        }
+
+        if (!confirm("Excluir o elemento " + elemento.nome + "?")) {
+          return;
+        }
+
+        try {
+          await deleteDoc(doc(db, "elementos_inspecao", elemento.id));
+
+          if (elementoEmEdicao === elemento.id) {
+            limparFormElemento();
+          }
+        } catch (erro) {
+          console.error("Erro ao excluir elemento:", erro);
+          mensagem("elemento", "erro", "Não foi possível excluir o elemento.");
+        }
+      }
+
+      function renderCatalogo() {
+        const tbody = $id("tabela-elementos");
+        tbody.innerHTML = "";
+
+        if (!catalogo.length) {
+          linhaVazia(tbody, 4, "Nenhum elemento cadastrado.");
+          return;
+        }
+
+        catalogo.forEach((elemento) => {
+          const linha = document.createElement("tr");
+
+          linha.appendChild(criarCelula(elemento.nome));
+          linha.appendChild(criarCelula(TIPOS[elemento.tipo] || elemento.tipo));
+          linha.appendChild(criarCelula(descricaoItens(elemento)));
+
+          const celulaAcao = document.createElement("td");
+          const acoes = document.createElement("div");
+          acoes.className = "acoes-tabela";
+
+          acoes.append(
+            botaoAcao("Editar", "fa-pen", "btn-editar", () => editarElemento(elemento)),
+            botaoAcao("Excluir", "fa-trash", "btn-revogar", () => excluirElemento(elemento)),
+          );
+
+          celulaAcao.appendChild(acoes);
+          linha.appendChild(celulaAcao);
+          tbody.appendChild(linha);
+        });
+      }
+
+      async function semearElementosPadrao() {
+        // Primeira vez: cria os 7 elementos que já existiam no app.
+        catalogoSemeado = true;
+
+        try {
+          for (const elemento of ELEMENTOS_PADRAO) {
+            const { id, ...dados } = elemento;
+            await setDoc(doc(db, "elementos_inspecao", id), {
+              prefixo: "",
+              itens: [],
+              ...dados,
+            });
+          }
+        } catch (erro) {
+          console.error("Erro ao criar elementos padrão:", erro);
+          mensagem("elemento", "erro", "Não foi possível criar os elementos padrão.");
+        }
+      }
+
+      function iniciarInspecaoTecnica(admin) {
+        adminAtual = admin;
+        atualizarCamposTipo();
+
+        onSnapshot(
+          collection(db, "elementos_inspecao"),
+          (snapshot) => {
+            const lista = [];
+            snapshot.forEach((d) => lista.push({ id: d.id, ...d.data() }));
+
+            if (!lista.length && !catalogoSemeado) {
+              semearElementosPadrao();
+              return;
+            }
+
+            catalogo = ordenarCatalogo(lista);
+            renderCatalogo();
+            renderChecklistTag();
+            renderTags();
+          },
+          (erro) => {
+            console.error("Erro ao carregar elementos:", erro);
+            mensagem("elemento", "erro", "Não foi possível carregar os elementos.");
+          },
+        );
+
+        onSnapshot(
+          collection(db, "tags_inspecao"),
+          (snapshot) => {
+            tagsCadastradas = [];
+            snapshot.forEach((d) => tagsCadastradas.push({ id: d.id, ...d.data() }));
+            tagsCadastradas.sort((a, b) =>
+              String(a.tag).localeCompare(String(b.tag), "pt-BR", { numeric: true }),
+            );
+            renderTags();
+          },
+          (erro) => {
+            console.error("Erro ao carregar TAGs:", erro);
+            mensagem("tag", "erro", "Não foi possível carregar as TAGs.");
+          },
+        );
+      }
+
       // Só entra quem está logado no Firebase E tem admins/{uid} ativo.
       let registrosIniciados = false;
 
@@ -1112,6 +2019,7 @@
           registrosIniciados = true;
           iniciarRegistros();
           iniciarInspetores(usuario);
+          iniciarInspecaoTecnica(usuario);
         }
       });
     </script>

@@ -227,6 +227,63 @@
         resize: vertical;
       }
 
+      .lista-itens {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .item-linha {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .item-rotulo {
+        flex: 0 0 104px;
+        color: var(--texto-suave);
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      .item-remover {
+        flex: 0 0 34px;
+        height: 34px;
+        border: 0;
+        border-radius: 8px;
+        color: var(--vermelho);
+        background: #fcebea;
+      }
+
+      .btn-add-item {
+        align-self: flex-start;
+        margin-top: 2px;
+      }
+
+      .equipamento-tag {
+        color: var(--texto-suave);
+        font-size: 13px;
+        min-height: 18px;
+      }
+
+      .aviso-form {
+        margin-top: 14px;
+        padding: 18px;
+        border: 1px dashed var(--borda);
+        border-radius: 10px;
+        color: var(--texto-suave);
+        text-align: center;
+        font-size: 13px;
+      }
+
+      #campos-dinamicos:empty {
+        display: none;
+      }
+
+      #campos-dinamicos {
+        margin-top: 14px;
+      }
+
       .acoes {
         display: flex;
         flex-wrap: wrap;
@@ -734,15 +791,11 @@
                 <div class="campo campo-largo">
                   <label for="tag-tecnica"> TAG do equipamento </label>
 
-                  <input
-                    id="tag-tecnica"
-                    type="text"
-                    placeholder="Digite a TAG do equipamento"
-                    autocomplete="off"
-                    autocapitalize="characters"
-                    spellcheck="false"
-                    required
-                  />
+                  <select id="tag-tecnica" required>
+                    <option value="">Carregando TAGs...</option>
+                  </select>
+
+                  <span id="equipamento-tecnico" class="equipamento-tag"></span>
                 </div>
 
                 <div class="campo">
@@ -750,54 +803,12 @@
 
                   <input id="data-inspecao" type="date" required />
                 </div>
+              </div>
 
-                <div class="campo">
-                  <label for="folga-cubo-helice">
-                    Folga do cubo de hélice
-                  </label>
+              <div id="campos-dinamicos" class="grade"></div>
 
-                  <input id="folga-cubo-helice" type="text" required />
-                </div>
-
-                <div class="campo">
-                  <label for="ancora"> Âncora </label>
-
-                  <input id="ancora" type="text" required />
-                </div>
-
-                <div class="campo">
-                  <label for="lamina"> Lâmina </label>
-
-                  <input id="lamina" type="text" required />
-                </div>
-
-                <div class="campo">
-                  <label for="escarificador"> Escarificador </label>
-
-                  <input id="escarificador" type="text" required />
-                </div>
-
-                <div class="campo">
-                  <label for="pontas"> Pontas </label>
-
-                  <input id="pontas" type="text" required />
-                </div>
-
-                <div class="campo">
-                  <label for="laminas-viradas">
-                    Lâminas já foram viradas?
-                  </label>
-
-                  <select id="laminas-viradas" required>
-                    <option value="">Selecione</option>
-
-                    <option value="Sim">Sim</option>
-
-                    <option value="Não">Não</option>
-
-                    <option value="N/A">N/A</option>
-                  </select>
-                </div>
+              <div id="aviso-form" class="aviso-form">
+                Selecione uma TAG para preencher a inspeção.
               </div>
 
               <div class="acoes">
@@ -923,6 +934,14 @@
 
       import { auth, db } from "./js/firebase-config.js";
 
+      import {
+        OPCOES,
+        montarEstrutura,
+        ordenarCatalogo,
+        resumoDoRegistro,
+        valoresDoRegistro,
+      } from "./js/elementos.js";
+
       const CHAVE_NOTAS = "lubeasy_carteira_notas";
 
       const atuaisRef = collection(db, "inspecoes_atuais");
@@ -935,6 +954,11 @@
       let cancelarNotas = null;
 
       let registrosAtuais = [];
+
+      // Cadastro feito pelo admin (aba Inspeção técnica).
+      let catalogo = [];
+      let tagsCadastradas = [];
+      let estruturaAtual = [];
       let usuarioAtual = null;
       let autorizado = false;
 
@@ -990,6 +1014,28 @@
         } catch {
           return [];
         }
+      }
+
+      // Resumo de uma inspeção em HTML (consulta e histórico).
+      function resumoHtml(registro, separador) {
+        return resumoDoRegistro(registro).map((linha) => {
+          const simples =
+            linha.itens.length === 1 && !linha.itens[0].rotulo;
+
+          const html = simples
+            ? escapar(linha.itens[0].valor || "-")
+            : linha.itens
+                .map(
+                  (item) =>
+                    "<strong>" +
+                    escapar(item.rotulo) +
+                    ":</strong> " +
+                    escapar(item.valor || "-"),
+                )
+                .join(separador);
+
+          return { titulo: linha.titulo, html };
+        });
       }
 
       function linhaResultado(titulo, valor) {
@@ -1340,6 +1386,17 @@
           return;
         }
 
+        const linhas = resumoHtml(registro, "<br />")
+          .map(
+            (linha) => `
+              <div class="linha-resultado">
+                <strong>${escapar(linha.titulo)}</strong>
+                <span>${linha.html}</span>
+              </div>
+            `,
+          )
+          .join("");
+
         resultado.innerHTML = `
           <h3>
             <i class="fa-solid fa-circle-check"></i>
@@ -1348,47 +1405,18 @@
 
           ${linhaResultado("TAG", registro.tag)}
 
+          ${registro.equipamento ? linhaResultado("Equipamento", registro.equipamento) : ""}
+
           ${linhaResultado(
             "Data da inspeção",
             formatarData(registro.dataInspecao),
           )}
 
-          ${linhaResultado("Folga do cubo de hélice", registro.folgaCuboHelice)}
-
-          ${linhaResultado("Âncora", registro.ancora)}
-
-          ${linhaResultado("Lâmina", registro.lamina)}
-
-          ${linhaResultado("Escarificador", registro.escarificador)}
-
-          ${linhaResultado("Pontas", registro.pontas)}
-
-          ${linhaResultado(
-            "Lâminas já foram viradas?",
-            registro.laminasViradas,
-          )}
+          ${linhas}
         `;
       }
 
       $("consulta-tag").addEventListener("change", exibirConsulta);
-
-      /*
-       * TAG TÉCNICA DIGITADA PELO INSPETOR
-       */
-
-      $("tag-tecnica").addEventListener("input", (evento) => {
-        evento.target.value = evento.target.value.toUpperCase().trimStart();
-      });
-
-      $("tag-tecnica").addEventListener("blur", () => {
-        const tag = $("tag-tecnica").value.trim().toUpperCase();
-
-        $("tag-tecnica").value = tag;
-
-        if (tag) {
-          carregarTecnico(tag);
-        }
-      });
 
       /*
        * AUTORIZAÇÃO
@@ -1491,57 +1519,138 @@
       }
 
       /*
-       * CARREGAR DADOS DE UMA TAG DIGITADA
+       * TAGs CADASTRADAS PELO ADMIN
        */
 
-      async function carregarTecnico(tagInformada) {
-        if (!autorizado || !tagInformada) {
-          return;
+      function atualizarSelectTags() {
+        const select = $("tag-tecnica");
+        const selecionada = select.value;
+
+        select.innerHTML = "";
+
+        const inicial = document.createElement("option");
+        inicial.value = "";
+        inicial.textContent = tagsCadastradas.length
+          ? "Selecione a TAG"
+          : "Nenhuma TAG cadastrada pelo administrador";
+        select.appendChild(inicial);
+
+        tagsCadastradas.forEach((cadastro) => {
+          const opcao = document.createElement("option");
+          opcao.value = cadastro.tag;
+          opcao.textContent =
+            cadastro.tag + (cadastro.equipamento ? " — " + cadastro.equipamento : "");
+          select.appendChild(opcao);
+        });
+
+        if (tagsCadastradas.some((t) => t.tag === selecionada)) {
+          select.value = selecionada;
         }
+      }
 
-        const tag = tagInformada.trim().toUpperCase();
+      /*
+       * FORMULÁRIO MONTADO A PARTIR DA TAG
+       */
 
-        try {
-          const referencia = doc(db, "inspecoes_atuais", idDaTag(tag));
+      function montarFormulario(estrutura, valores = {}) {
+        const area = $("campos-dinamicos");
+        area.innerHTML = "";
 
-          const documento = await getDoc(referencia);
+        estrutura.forEach((elemento) => {
+          const campo = document.createElement("div");
+          campo.className = "campo";
 
-          if (!documento.exists()) {
-            limparCamposTecnicos(false);
+          const titulo = document.createElement("label");
+          titulo.textContent = elemento.nome;
+          campo.appendChild(titulo);
 
-            $("tag-tecnica").value = tag;
+          const valor = valores[elemento.id];
 
-            $("btn-apagar-tecnico").disabled = true;
+          if (elemento.tipo === "texto" || elemento.tipo === "opcao") {
+            let entrada;
 
-            $("area-historico").style.display = "none";
+            if (elemento.tipo === "opcao") {
+              entrada = document.createElement("select");
+              ["", ...OPCOES].forEach((texto) => {
+                const opcao = document.createElement("option");
+                opcao.value = texto;
+                opcao.textContent = texto || "Selecione";
+                entrada.appendChild(opcao);
+              });
+            } else {
+              entrada = document.createElement("input");
+              entrada.type = "text";
+            }
 
-            return;
+            entrada.id = "campo-" + elemento.id;
+            entrada.dataset.el = elemento.id;
+            entrada.value = Array.isArray(valor) ? valor.join(", ") : valor ?? "";
+            titulo.htmlFor = entrada.id;
+            campo.appendChild(entrada);
+          } else {
+            const lista = document.createElement("div");
+            lista.className = "lista-itens";
+
+            elemento.itens.forEach((rotulo, indice) => {
+              const linha = document.createElement("div");
+              linha.className = "item-linha";
+
+              const nome = document.createElement("label");
+              nome.className = "item-rotulo";
+              nome.textContent = rotulo;
+
+              const entrada = document.createElement("input");
+              entrada.type = "text";
+              entrada.id = "campo-" + elemento.id + "-" + indice;
+              entrada.dataset.el = elemento.id;
+              nome.htmlFor = entrada.id;
+
+              // Valores antigos em texto simples vão para o item 1.
+              entrada.value = Array.isArray(valor)
+                ? valor[indice] ?? ""
+                : indice === 0
+                  ? valor ?? ""
+                  : "";
+
+              linha.append(nome, entrada);
+              lista.appendChild(linha);
+            });
+
+            campo.appendChild(lista);
           }
 
-          const dados = documento.data();
+          area.appendChild(campo);
+        });
+      }
 
-          $("data-inspecao").value = dados.dataInspecao || "";
+      function lerValores() {
+        const area = $("campos-dinamicos");
+        const valores = {};
+        const faltando = [];
 
-          $("folga-cubo-helice").value = dados.folgaCuboHelice || "";
+        estruturaAtual.forEach((elemento) => {
+          const entradas = [
+            ...area.querySelectorAll('[data-el="' + CSS.escape(elemento.id) + '"]'),
+          ].map((entrada) => entrada.value.trim());
 
-          $("ancora").value = dados.ancora || "";
+          if (elemento.tipo === "texto" || elemento.tipo === "opcao") {
+            valores[elemento.id] = entradas[0] || "";
 
-          $("lamina").value = dados.lamina || "";
+            if (!valores[elemento.id]) {
+              faltando.push(elemento.nome);
+            }
+          } else {
+            valores[elemento.id] = entradas;
 
-          $("escarificador").value = dados.escarificador || "";
+            entradas.forEach((texto, indice) => {
+              if (!texto) {
+                faltando.push(elemento.itens[indice]);
+              }
+            });
+          }
+        });
 
-          $("pontas").value = dados.pontas || "";
-
-          $("laminas-viradas").value = dados.laminasViradas || "";
-
-          $("btn-apagar-tecnico").disabled = false;
-
-          carregarHistorico(tag);
-        } catch (erro) {
-          console.error("Erro ao carregar informação técnica:", erro);
-
-          alert("Não foi possível carregar os dados desta TAG.");
-        }
+        return { valores, faltando };
       }
 
       function limparCamposTecnicos(limparTag = true) {
@@ -1549,30 +1658,76 @@
           $("tag-tecnica").value = "";
         }
 
+        estruturaAtual = [];
+
+        $("campos-dinamicos").innerHTML = "";
+        $("equipamento-tecnico").textContent = "";
         $("data-inspecao").value = "";
-
-        $("folga-cubo-helice").value = "";
-
-        $("ancora").value = "";
-
-        $("lamina").value = "";
-
-        $("escarificador").value = "";
-
-        $("pontas").value = "";
-
-        $("laminas-viradas").value = "";
-
+        $("aviso-form").style.display = "block";
+        $("aviso-form").textContent = "Selecione uma TAG para preencher a inspeção.";
         $("btn-apagar-tecnico").disabled = true;
-
         $("area-historico").style.display = "none";
-
         $("lista-historico").innerHTML = "";
       }
 
       window.limparTecnico = function () {
         limparCamposTecnicos(true);
       };
+
+      async function carregarTecnico(tag) {
+        limparCamposTecnicos(false);
+
+        if (!autorizado || !tag) {
+          return;
+        }
+
+        const cadastro = tagsCadastradas.find((t) => t.tag === tag);
+
+        estruturaAtual = montarEstrutura(catalogo, cadastro);
+
+        $("equipamento-tecnico").textContent = cadastro?.equipamento
+          ? "Equipamento: " + cadastro.equipamento
+          : "";
+
+        if (!estruturaAtual.length) {
+          $("aviso-form").textContent =
+            "Esta TAG ainda não tem elementos de inspeção. Peça ao administrador para completar o cadastro.";
+          return;
+        }
+
+        $("aviso-form").style.display = "none";
+
+        try {
+          const documento = await getDoc(
+            doc(db, "inspecoes_atuais", idDaTag(tag)),
+          );
+
+          // Evita misturar dados se o inspetor trocou de TAG durante a busca.
+          if ($("tag-tecnica").value !== tag) {
+            return;
+          }
+
+          if (documento.exists()) {
+            const dados = documento.data();
+
+            $("data-inspecao").value = dados.dataInspecao || "";
+            montarFormulario(estruturaAtual, valoresDoRegistro(dados));
+            $("btn-apagar-tecnico").disabled = false;
+            carregarHistorico(tag);
+          } else {
+            $("data-inspecao").value = dataAtual();
+            montarFormulario(estruturaAtual, {});
+            carregarHistorico(tag);
+          }
+        } catch (erro) {
+          console.error("Erro ao carregar informação técnica:", erro);
+          alert("Não foi possível carregar os dados desta TAG.");
+        }
+      }
+
+      $("tag-tecnica").addEventListener("change", () => {
+        carregarTecnico($("tag-tecnica").value);
+      });
 
       /*
        * SALVAR INFORMAÇÃO TÉCNICA
@@ -1583,62 +1738,50 @@
 
         if (!usuarioAtual || !autorizado) {
           alert("Somente um inspetor autorizado pode salvar.");
-
           return;
         }
 
-        const tag = $("tag-tecnica").value.trim().toUpperCase();
-
-        $("tag-tecnica").value = tag;
+        const tag = $("tag-tecnica").value;
 
         if (!tag) {
-          alert("Digite a TAG do equipamento.");
-
-          $("tag-tecnica").focus();
-
+          alert("Selecione a TAG do equipamento.");
           return;
         }
+
+        if (!estruturaAtual.length) {
+          alert("Esta TAG não tem elementos de inspeção cadastrados.");
+          return;
+        }
+
+        const dataInspecao = $("data-inspecao").value;
+
+        if (!dataInspecao) {
+          alert("Informe a data da inspeção.");
+          return;
+        }
+
+        const { valores, faltando } = lerValores();
+
+        if (faltando.length) {
+          alert("Preencha os campos: " + faltando.join(", ") + ".");
+          return;
+        }
+
+        const cadastro = tagsCadastradas.find((t) => t.tag === tag);
 
         const dados = {
           tag,
-
-          dataInspecao: $("data-inspecao").value,
-
-          folgaCuboHelice: $("folga-cubo-helice").value.trim(),
-
-          ancora: $("ancora").value.trim(),
-
-          lamina: $("lamina").value.trim(),
-
-          escarificador: $("escarificador").value.trim(),
-
-          pontas: $("pontas").value.trim(),
-
-          laminasViradas: $("laminas-viradas").value,
-
+          equipamento: cadastro?.equipamento || "",
+          dataInspecao,
+          estrutura: estruturaAtual,
+          valores,
           inspetorUid: usuarioAtual.uid,
-
           emailInspetor: usuarioAtual.email || "",
-
           atualizadoEm: serverTimestamp(),
         };
 
-        const obrigatorios = [
-          dados.tag,
-          dados.dataInspecao,
-          dados.folgaCuboHelice,
-          dados.ancora,
-          dados.lamina,
-          dados.escarificador,
-          dados.pontas,
-          dados.laminasViradas,
-        ];
-
-        if (obrigatorios.some((campo) => !campo)) {
-          alert("Preencha todos os campos técnicos.");
-
-          return;
-        }
+        const botao = evento.submitter;
+        if (botao) botao.disabled = true;
 
         try {
           const referencia = doc(db, "inspecoes_atuais", idDaTag(tag));
@@ -1649,11 +1792,8 @@
             await addDoc(historicoRef, {
               ...anterior.data(),
               tag,
-
               arquivadoPorUid: usuarioAtual.uid,
-
               arquivadoPorEmail: usuarioAtual.email || "",
-
               arquivadoEm: serverTimestamp(),
             });
           }
@@ -1667,8 +1807,9 @@
           alert("Informações técnicas salvas com sucesso.");
         } catch (erro) {
           console.error("Erro ao salvar informação técnica:", erro);
-
-          alert("Não foi possível salvar. Verifique as regras do Firebase.");
+          alert("Não foi possível salvar. Verifique sua conexão.");
+        } finally {
+          if (botao) botao.disabled = false;
         }
       });
 
@@ -1678,19 +1819,13 @@
 
       async function carregarHistorico(tag) {
         $("area-historico").style.display = "block";
-
         $("lista-historico").innerHTML = "Carregando histórico...";
 
         try {
-          const consulta = query(historicoRef, where("tag", "==", tag));
-
-          const snapshot = await getDocs(consulta);
+          const snapshot = await getDocs(query(historicoRef, where("tag", "==", tag)));
 
           const itens = [];
-
-          snapshot.forEach((documento) => {
-            itens.push(documento.data());
-          });
+          snapshot.forEach((documento) => itens.push(documento.data()));
 
           const tempo = (item) =>
             item.arquivadoEm && item.arquivadoEm.toMillis
@@ -1702,55 +1837,32 @@
           if (!itens.length) {
             $("lista-historico").innerHTML =
               "Ainda não existem versões anteriores para esta TAG.";
-
             return;
           }
 
           $("lista-historico").innerHTML = itens
-            .map(
-              (item, indice) => `
-                  <div class="historico-item">
-                    <strong>
-                      Versão anterior ${indice + 1}
-                      ${item.motivo === "apagado" ? "(apagada)" : ""}
-                    </strong>
-                    <br />
+            .map((item, indice) => {
+              const detalhes = resumoHtml(item, " / ")
+                .map((linha) => escapar(linha.titulo) + ": " + linha.html)
+                .join("<br />");
 
-                    Data da inspeção:
-                    ${escapar(formatarData(item.dataInspecao))}
-                    <br />
-
-                    Folga do cubo:
-                    ${escapar(item.folgaCuboHelice)}
-                    <br />
-
-                    Âncora:
-                    ${escapar(item.ancora)}
-                    <br />
-
-                    Lâmina:
-                    ${escapar(item.lamina)}
-                    <br />
-
-                    Escarificador:
-                    ${escapar(item.escarificador)}
-                    <br />
-
-                    Pontas:
-                    ${escapar(item.pontas)}
-                    <br />
-
-                    Lâminas viradas:
-                    ${escapar(item.laminasViradas)}
-                  </div>
-                `,
-            )
+              return `
+                <div class="historico-item">
+                  <strong>
+                    Versão anterior ${indice + 1}
+                    ${item.motivo === "apagado" ? "(apagada)" : ""}
+                  </strong>
+                  <br />
+                  Data da inspeção: ${escapar(formatarData(item.dataInspecao))}
+                  <br />
+                  ${detalhes}
+                </div>
+              `;
+            })
             .join("");
         } catch (erro) {
           console.error("Erro ao carregar histórico:", erro);
-
-          $("lista-historico").innerHTML =
-            "Não foi possível carregar o histórico.";
+          $("lista-historico").innerHTML = "Não foi possível carregar o histórico.";
         }
       }
 
@@ -1761,14 +1873,13 @@
       window.apagarTecnico = async function () {
         if (!usuarioAtual || !autorizado) {
           alert("Somente um inspetor autorizado pode apagar.");
-
           return;
         }
 
-        const tag = $("tag-tecnica").value.trim().toUpperCase();
+        const tag = $("tag-tecnica").value;
 
         if (!tag) {
-          alert("Digite uma TAG.");
+          alert("Selecione uma TAG.");
           return;
         }
 
@@ -1801,14 +1912,9 @@
 
           limparCamposTecnicos(true);
 
-          atualizarListaPublica();
-
-          exibirConsulta();
-
           alert("Informação atual apagada com sucesso.");
         } catch (erro) {
           console.error("Erro ao apagar informação:", erro);
-
           alert("Não foi possível apagar a informação.");
         }
       };
@@ -1951,6 +2057,33 @@
 
         ouvirPerfil(usuario);
       });
+
+      onSnapshot(
+        collection(db, "elementos_inspecao"),
+        (snapshot) => {
+          const lista = [];
+          snapshot.forEach((d) => lista.push({ id: d.id, ...d.data() }));
+          catalogo = ordenarCatalogo(lista);
+        },
+        (erro) => console.error("Erro ao carregar elementos:", erro),
+      );
+
+      onSnapshot(
+        collection(db, "tags_inspecao"),
+        (snapshot) => {
+          tagsCadastradas = [];
+          snapshot.forEach((d) => tagsCadastradas.push({ id: d.id, ...d.data() }));
+          tagsCadastradas.sort((a, b) =>
+            String(a.tag).localeCompare(String(b.tag), "pt-BR", { numeric: true }),
+          );
+          atualizarSelectTags();
+        },
+        (erro) => {
+          console.error("Erro ao carregar TAGs:", erro);
+          $("tag-tecnica").innerHTML =
+            '<option value="">Não foi possível carregar as TAGs</option>';
+        },
+      );
 
       $("data-criacao").value = dataAtual();
     </script>
