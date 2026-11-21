@@ -277,6 +277,91 @@
         margin-top: 4px;
       }
 
+      .abas {
+        display: flex;
+        gap: 6px;
+        margin-bottom: 28px;
+        border-bottom: 2px solid #f0f4f8;
+        flex-wrap: wrap;
+      }
+
+      .aba-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 18px;
+        border: none;
+        border-bottom: 3px solid transparent;
+        margin-bottom: -2px;
+        background: none;
+        color: #555;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      .aba-btn.ativa {
+        color: #2176c7;
+        border-bottom-color: #2176c7;
+        background: #f0f6fd;
+      }
+
+      .contador {
+        display: none;
+        min-width: 22px;
+        padding: 2px 7px;
+        border-radius: 999px;
+        background: #e67e22;
+        color: #fff;
+        font-size: 12px;
+        text-align: center;
+      }
+
+      .contador.ativo {
+        display: inline-block;
+      }
+
+      .aba {
+        display: none;
+      }
+
+      .aba.ativa {
+        display: block;
+      }
+
+      .aviso-pendentes {
+        display: none;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+        padding: 12px 16px;
+        border-radius: 10px;
+        border: 1px solid #f1d98a;
+        background: #fff8e1;
+        color: #7a5b00;
+        font-size: 14px;
+      }
+
+      .aviso-pendentes.ativo {
+        display: flex;
+      }
+
+      .aviso-pendentes button {
+        border: none;
+        border-radius: 8px;
+        padding: 8px 14px;
+        background: #e67e22;
+        color: #fff;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      .stat-card.clicavel {
+        cursor: pointer;
+      }
+
       .ajuda {
         font-size: 13px;
         color: #555;
@@ -406,13 +491,48 @@
           <p>Consultas</p>
         </div>
 
-        <div class="stat-card destaque">
+        <div class="stat-card destaque clicavel" onclick="mostrarAba('inspetores')" title="Ver pedidos de aprovação">
           <i class="fa-solid fa-user-clock"></i>
           <span id="total-pendentes">0</span>
           <p>Inspetores pendentes</p>
         </div>
       </div>
 
+      <div class="aviso-pendentes" id="aviso-pendentes">
+        <span>
+          <i class="fa-solid fa-user-clock"></i>
+          <strong id="aviso-qtd">0</strong> inspetor(es) aguardando aprovação.
+        </span>
+
+        <button type="button" onclick="mostrarAba('inspetores')">
+          Ver pedidos
+        </button>
+      </div>
+
+      <div class="abas">
+        <button
+          type="button"
+          class="aba-btn ativa"
+          id="aba-btn-equipamentos"
+          onclick="mostrarAba('equipamentos')"
+        >
+          <i class="fa-solid fa-oil-can"></i>
+          Equipamentos
+        </button>
+
+        <button
+          type="button"
+          class="aba-btn"
+          id="aba-btn-inspetores"
+          onclick="mostrarAba('inspetores')"
+        >
+          <i class="fa-solid fa-user-check"></i>
+          Aprovação de inspetores
+          <span class="contador" id="contador-pendentes">0</span>
+        </button>
+      </div>
+
+      <div class="aba ativa" id="aba-equipamentos">
       <h2>
         <i class="fa-solid fa-plus"></i>
         Adicionar Registro
@@ -519,13 +639,16 @@
         </tbody>
       </table>
 
-      <h2 style="margin-top: 32px">
+      </div>
+
+      <div class="aba" id="aba-inspetores">
+      <h2>
         <i class="fa-solid fa-user-check"></i>
-        Inspetores
+        Pedidos de aprovação
       </h2>
 
       <p class="ajuda">
-        Quem cria conta na tela de Inspeção aparece aqui como pendente.
+        Quem cria conta na aba Inspeção aparece aqui como pendente.
         Aprove para liberar as notas e as informações técnicas; revogue para
         retirar o acesso.
       </p>
@@ -546,6 +669,12 @@
           </tr>
         </tbody>
       </table>
+
+      <div class="msg-erro" id="msg-erro-inspetores">
+        <i class="fa-solid fa-circle-exclamation"></i>
+        <span id="texto-erro-inspetores">Ocorreu um erro.</span>
+      </div>
+      </div>
     </main>
 
     <footer>
@@ -810,13 +939,42 @@
         return timestamp.toDate().toLocaleDateString("pt-BR");
       }
 
+      window.mostrarAba = function (nome) {
+        ["equipamentos", "inspetores"].forEach((aba) => {
+          document
+            .getElementById("aba-" + aba)
+            .classList.toggle("ativa", aba === nome);
+          document
+            .getElementById("aba-btn-" + aba)
+            .classList.toggle("ativa", aba === nome);
+        });
+      };
+
+      function mostrarErroInspetores(texto) {
+        document.getElementById("texto-erro-inspetores").textContent = texto;
+        document.getElementById("msg-erro-inspetores").style.display = "flex";
+      }
+
+      function atualizarPendentes(quantidade) {
+        document.getElementById("total-pendentes").textContent = quantidade;
+        document.getElementById("aviso-qtd").textContent = quantidade;
+
+        const contador = document.getElementById("contador-pendentes");
+        contador.textContent = quantidade;
+        contador.classList.toggle("ativo", quantidade > 0);
+
+        document
+          .getElementById("aviso-pendentes")
+          .classList.toggle("ativo", quantidade > 0);
+      }
+
       function renderInspetores(lista, admin) {
         const tbody = document.getElementById("tabela-inspetores");
         tbody.innerHTML = "";
 
         const pendentes = lista.filter((item) => item.permitido !== true);
-        document.getElementById("total-pendentes").textContent =
-          pendentes.length;
+        atualizarPendentes(pendentes.length);
+        document.getElementById("msg-erro-inspetores").style.display = "none";
 
         if (!lista.length) {
           const linha = document.createElement("tr");
@@ -893,7 +1051,7 @@
               }
             } catch (erro) {
               console.error("Erro ao atualizar inspetor:", erro);
-              mostrarErro("Não foi possível atualizar o inspetor.");
+              mostrarErroInspetores("Não foi possível atualizar o inspetor.");
               botao.disabled = false;
             }
           });
@@ -916,7 +1074,9 @@
           },
           (erro) => {
             console.error("Erro ao carregar inspetores:", erro);
-            mostrarErro("Não foi possível carregar a lista de inspetores.");
+            mostrarErroInspetores(
+              "Não foi possível carregar a lista de inspetores.",
+            );
           },
         );
       }
