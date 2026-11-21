@@ -277,6 +277,62 @@
         margin-top: 4px;
       }
 
+      .ajuda {
+        font-size: 13px;
+        color: #555;
+        margin-top: -12px;
+        line-height: 1.5;
+      }
+
+      .selo {
+        display: inline-block;
+        padding: 3px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+      }
+
+      .selo.pendente {
+        background: #fff8e1;
+        color: #7a5b00;
+      }
+
+      .selo.aprovado {
+        background: #eafaf1;
+        color: #1e8449;
+      }
+
+      .btn-acao {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        border: none;
+        border-radius: 6px;
+        padding: 6px 12px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      .btn-acao:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
+      .btn-aprovar {
+        background: #1e8449;
+        color: #fff;
+      }
+
+      .btn-revogar {
+        background: #fdecea;
+        color: #c0392b;
+      }
+
+      .stat-card.destaque span {
+        color: #b9770e;
+      }
+
       footer {
         color: rgba(255, 255, 255, 0.5);
         font-size: 13px;
@@ -348,6 +404,12 @@
           <i class="fa-solid fa-magnifying-glass"></i>
           <span id="total-consultas">0</span>
           <p>Consultas</p>
+        </div>
+
+        <div class="stat-card destaque">
+          <i class="fa-solid fa-user-clock"></i>
+          <span id="total-pendentes">0</span>
+          <p>Inspetores pendentes</p>
         </div>
       </div>
 
@@ -456,6 +518,34 @@
           </tr>
         </tbody>
       </table>
+
+      <h2 style="margin-top: 32px">
+        <i class="fa-solid fa-user-check"></i>
+        Inspetores
+      </h2>
+
+      <p class="ajuda">
+        Quem cria conta na tela de Inspeção aparece aqui como pendente.
+        Aprove para liberar as notas e as informações técnicas; revogue para
+        retirar o acesso.
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>E-mail</th>
+            <th>Situação</th>
+            <th>Cadastro</th>
+            <th>Ação</th>
+          </tr>
+        </thead>
+
+        <tbody id="tabela-inspetores">
+          <tr>
+            <td colspan="4" class="vazio">Carregando inspetores...</td>
+          </tr>
+        </tbody>
+      </table>
     </main>
 
     <footer>
@@ -472,6 +562,8 @@
         query,
         orderBy,
         getDoc,
+        updateDoc,
+        serverTimestamp,
       } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
       import {
@@ -706,6 +798,129 @@
         );
       }
 
+      /*
+       * APROVAÇÃO DE INSPETORES
+       */
+
+      function formatarDataHora(timestamp) {
+        if (!timestamp || !timestamp.toDate) {
+          return "—";
+        }
+
+        return timestamp.toDate().toLocaleDateString("pt-BR");
+      }
+
+      function renderInspetores(lista, admin) {
+        const tbody = document.getElementById("tabela-inspetores");
+        tbody.innerHTML = "";
+
+        const pendentes = lista.filter((item) => item.permitido !== true);
+        document.getElementById("total-pendentes").textContent =
+          pendentes.length;
+
+        if (!lista.length) {
+          const linha = document.createElement("tr");
+          const celula = document.createElement("td");
+          celula.colSpan = 4;
+          celula.className = "vazio";
+          celula.textContent = "Nenhum inspetor cadastrado.";
+          linha.appendChild(celula);
+          tbody.appendChild(linha);
+          return;
+        }
+
+        // Pendentes primeiro, depois por e-mail.
+        const ordenados = [...lista].sort((a, b) => {
+          const pa = a.permitido === true ? 1 : 0;
+          const pb = b.permitido === true ? 1 : 0;
+          if (pa !== pb) return pa - pb;
+          return String(a.email || a.id).localeCompare(
+            String(b.email || b.id),
+            "pt-BR",
+          );
+        });
+
+        ordenados.forEach((item) => {
+          const linha = document.createElement("tr");
+          const aprovado = item.permitido === true;
+
+          linha.appendChild(criarCelula(item.email || item.id));
+
+          const celulaSituacao = document.createElement("td");
+          const selo = document.createElement("span");
+          selo.className = "selo " + (aprovado ? "aprovado" : "pendente");
+          selo.textContent = aprovado ? "Aprovado" : "Pendente";
+          celulaSituacao.appendChild(selo);
+          linha.appendChild(celulaSituacao);
+
+          linha.appendChild(criarCelula(formatarDataHora(item.solicitadoEm)));
+
+          const celulaAcao = document.createElement("td");
+          const botao = document.createElement("button");
+          botao.type = "button";
+          botao.className = "btn-acao " + (aprovado ? "btn-revogar" : "btn-aprovar");
+          botao.innerHTML = aprovado
+            ? '<i class="fa-solid fa-user-xmark"></i> Revogar'
+            : '<i class="fa-solid fa-user-check"></i> Aprovar';
+
+          botao.addEventListener("click", async () => {
+            const nome = item.email || item.id;
+            const pergunta = aprovado
+              ? "Retirar o acesso de " + nome + "?"
+              : "Aprovar " + nome + " como inspetor?";
+
+            if (!confirm(pergunta)) {
+              return;
+            }
+
+            botao.disabled = true;
+
+            try {
+              const referencia = doc(db, "inspetores", item.id);
+
+              if (aprovado) {
+                await updateDoc(referencia, {
+                  permitido: false,
+                  revogadoPorEmail: admin.email || "",
+                  revogadoEm: serverTimestamp(),
+                });
+              } else {
+                await updateDoc(referencia, {
+                  permitido: true,
+                  aprovadoPorEmail: admin.email || "",
+                  aprovadoEm: serverTimestamp(),
+                });
+              }
+            } catch (erro) {
+              console.error("Erro ao atualizar inspetor:", erro);
+              mostrarErro("Não foi possível atualizar o inspetor.");
+              botao.disabled = false;
+            }
+          });
+
+          celulaAcao.appendChild(botao);
+          linha.appendChild(celulaAcao);
+          tbody.appendChild(linha);
+        });
+      }
+
+      function iniciarInspetores(admin) {
+        onSnapshot(
+          collection(db, "inspetores"),
+          (snapshot) => {
+            const lista = [];
+            snapshot.forEach((documento) => {
+              lista.push({ id: documento.id, ...documento.data() });
+            });
+            renderInspetores(lista, admin);
+          },
+          (erro) => {
+            console.error("Erro ao carregar inspetores:", erro);
+            mostrarErro("Não foi possível carregar a lista de inspetores.");
+          },
+        );
+      }
+
       // Só entra quem está logado no Firebase E tem admins/{uid} ativo.
       let registrosIniciados = false;
 
@@ -736,6 +951,7 @@
         if (!registrosIniciados) {
           registrosIniciados = true;
           iniciarRegistros();
+          iniciarInspetores(usuario);
         }
       });
     </script>

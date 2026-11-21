@@ -306,6 +306,12 @@
         background: #e7f7ee;
       }
 
+      .status.aviso {
+        color: #7a5b00;
+        border: 1px solid #f1d98a;
+        background: #fff8e1;
+      }
+
       .status.erro {
         color: #9f2d25;
         border: 1px solid #efb2ad;
@@ -1071,6 +1077,11 @@
           return;
         }
 
+        if (!autorizado) {
+          alert("Somente inspetores autorizados podem cadastrar notas.");
+          return;
+        }
+
         const botao = evento.submitter;
         if (botao) botao.disabled = true;
 
@@ -1167,8 +1178,14 @@
 
         notasEquipe = [];
 
-        if (!usuarioAtual) {
+        if (!usuarioAtual || !autorizado) {
           renderizarNotas();
+
+          if (usuarioAtual) {
+            $("sem-notas").textContent =
+              "As notas ficam disponíveis após a aprovação do administrador.";
+          }
+
           return;
         }
 
@@ -1198,7 +1215,7 @@
        */
 
       function notasLocaisDoUsuario() {
-        if (!usuarioAtual || !usuarioAtual.email) {
+        if (!usuarioAtual || !usuarioAtual.email || !autorizado) {
           return [];
         }
 
@@ -1377,49 +1394,100 @@
        * AUTORIZAÇÃO
        */
 
-      async function verificarAutorizacao(usuario) {
-        usuarioAtual = usuario;
-        autorizado = false;
+      /*
+       * PERFIL DO INSPETOR (aprovação pelo painel do admin)
+       *
+       * Ao entrar pela primeira vez, o app cria inspetores/{uid}
+       * com permitido = false (pedido de acesso). O admin aprova
+       * pelo painel e esta tela libera o acesso na hora.
+       */
 
+      let cancelarPerfil = null;
+
+      function mostrarStatus(classe, texto) {
+        $("status-autorizacao").className = "status " + classe;
+        $("status-autorizacao").textContent = texto;
+      }
+
+      function definirAutorizado(valor) {
+        const mudou = valor !== autorizado;
+
+        autorizado = valor;
+        $("area-tecnica").style.display = valor ? "block" : "none";
+
+        if (mudou) {
+          ouvirNotas();
+          atualizarAvisoNotasLocais();
+        }
+      }
+
+      function ouvirPerfil(usuario) {
+        if (cancelarPerfil) {
+          cancelarPerfil();
+          cancelarPerfil = null;
+        }
+
+        autorizado = false;
         $("area-tecnica").style.display = "none";
+        ouvirNotas();
+        atualizarAvisoNotasLocais();
 
         if (!usuario) {
-          $("status-autorizacao").className = "status erro";
-
-          $("status-autorizacao").textContent =
-            "Faça login para acessar as informações técnicas.";
-
+          mostrarStatus(
+            "erro",
+            "Faça login para acessar as informações técnicas.",
+          );
           return;
         }
 
-        try {
-          const referencia = doc(db, "inspetores", usuario.uid);
+        mostrarStatus("aviso", "Verificando autorização...");
 
-          const documento = await getDoc(referencia);
+        const referencia = doc(db, "inspetores", usuario.uid);
 
-          if (documento.exists() && documento.data().permitido === true) {
-            autorizado = true;
+        cancelarPerfil = onSnapshot(
+          referencia,
+          async (documento) => {
+            if (!documento.exists()) {
+              // Primeiro acesso: registra o pedido de aprovação.
+              try {
+                await setDoc(referencia, {
+                  email: usuario.email || "",
+                  permitido: false,
+                  solicitadoEm: serverTimestamp(),
+                });
+              } catch (erro) {
+                console.error("Erro ao registrar pedido de acesso:", erro);
+                mostrarStatus(
+                  "erro",
+                  "Não foi possível registrar seu pedido de acesso.",
+                );
+              }
 
-            $("area-tecnica").style.display = "block";
+              definirAutorizado(false);
+              return;
+            }
 
-            $("status-autorizacao").className = "status sucesso";
-
-            $("status-autorizacao").textContent =
-              "Inspetor autorizado para editar informações técnicas.";
-          } else {
-            $("status-autorizacao").className = "status erro";
-
-            $("status-autorizacao").textContent =
-              "Este usuário não está autorizado como inspetor.";
-          }
-        } catch (erro) {
-          console.error("Erro ao verificar autorização:", erro);
-
-          $("status-autorizacao").className = "status erro";
-
-          $("status-autorizacao").textContent =
-            "Não foi possível verificar a autorização.";
-        }
+            if (documento.data().permitido === true) {
+              definirAutorizado(true);
+              mostrarStatus(
+                "sucesso",
+                "Inspetor autorizado para editar informações técnicas.",
+              );
+            } else {
+              definirAutorizado(false);
+              mostrarStatus(
+                "aviso",
+                "Seu cadastro aguarda aprovação do administrador. " +
+                  "Assim que for aprovado, o acesso é liberado automaticamente.",
+              );
+            }
+          },
+          (erro) => {
+            console.error("Erro ao verificar autorização:", erro);
+            definirAutorizado(false);
+            mostrarStatus("erro", "Não foi possível verificar a autorização.");
+          },
+        );
       }
 
       /*
@@ -1827,7 +1895,10 @@
           fecharLogin();
           mostrarCarteira();
 
-          alert("Cadastro realizado com sucesso.");
+          alert(
+            "Cadastro realizado! Seu acesso às notas e informações técnicas " +
+              "será liberado assim que o administrador aprovar.",
+          );
         } catch (erro) {
           console.error(erro);
 
@@ -1878,9 +1949,7 @@
       onAuthStateChanged(auth, (usuario) => {
         usuarioAtual = usuario;
 
-        ouvirNotas();
-        atualizarAvisoNotasLocais();
-        verificarAutorizacao(usuario);
+        ouvirPerfil(usuario);
       });
 
       $("data-criacao").value = dataAtual();
